@@ -33,7 +33,7 @@ dependencies:
   flutter_blue: ^0.8.0
   mqtt_client: ^9.3.1
   http: ^0.13.3
-  url_launcher: ^5.7.5
+  url_launcher: ^6.0.7
 
   # dev_dependencies:
   # flutter_test:
