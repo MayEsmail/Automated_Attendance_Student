@@ -1,10 +1,8 @@
-import 'dart:io';
-import 'package:student/login/login_button.dart';
+import '../Common_Widgets/rounded_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'password_field.dart';
 import 'text_field.dart';
-import 'rounded_container.dart';
 import '../Common_Widgets/SetImage.dart';
 import '../constants.dart';
 
@@ -26,7 +24,7 @@ class LoginScreen extends StatelessWidget{
           MyTextField(),
           MyPasswordField(onChanged: (value){},),
           SizedBox(height: 26,),
-          LoginButton(),
+          RoundedButton(text: "Login",onPressed: (){},color: kPrimaryColor, splash: Colors.grey[700],),
           SizedBox(
             height: 18,
           ),
