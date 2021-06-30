@@ -5,6 +5,8 @@ import 'package:students/widgets/home/home.dart';
 import 'constants.dart';
 import 'schedule/schedule.dart';
 import './login/login.dart';
+import '../MQTT/MQTTAppState.dart';
+import '../MQTT/MQTTManager.dart';
 
 void main() => runApp(MyApp());
 
@@ -29,7 +31,18 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return (MaterialApp(
       home: Scaffold(
-        appBar: CustomAppBar("a", AppBar().preferredSize),
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(100),
+          child: AppBar(
+            flexibleSpace: Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage("assets/images/iti.png"),
+                    fit: BoxFit.fill),
+              ),
+            ),
+          ),
+        ),
         body: isLoggedIn ? render(_currentIdx) : LoginScreen(),
         bottomNavigationBar: isLoggedIn
             ? (BottomNavigationBar(
