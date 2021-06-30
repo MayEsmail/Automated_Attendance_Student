@@ -4,6 +4,9 @@ import 'Home/Home.dart';
 import 'constants.dart';
 import 'schedule/schedule.dart';
 import './login/login.dart';
+import '../MQTT/MQTTAppState.dart';
+import '../MQTT/MQTTManager.dart';
+
 void main()=>runApp(MyApp());
 class MyApp extends StatefulWidget{
   @override
@@ -23,7 +26,7 @@ class _MyAppState extends State<MyApp> {
     return(MaterialApp(
       home: Scaffold(
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(110),
+          preferredSize: Size.fromHeight(100),
           child: AppBar(
             flexibleSpace: Container(
               decoration: BoxDecoration(
