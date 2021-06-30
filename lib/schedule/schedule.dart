@@ -1,6 +1,3 @@
-
-import 'dart:html';
-
 import 'package:flutter/material.dart';
 import 'Lecture.dart';
 import '../constants.dart';

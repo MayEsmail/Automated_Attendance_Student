@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:student/MQTT/mqttFinal.dart';
 import '../Common_Widgets/rounded_button.dart';
 import 'package:student/constants.dart';
-
+import '../MQTT/MQTTAppState.dart';
+import '../MQTT/MQTTManager.dart';
 TextStyle customTextStyle =
     TextStyle(fontSize: 18, color: Colors.black, fontWeight: FontWeight.bold);
 
@@ -14,23 +18,48 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool scanning_enabled=false;
-
+  List myBeacons=['AC:23:3F:2C:D2:D6','AC:23:3F:2C:D2:B8'];
   void scanningToggler(){
+    myConnect();
+    return;
     String devices = "Test";
     FlutterBlue flutterBlue = FlutterBlue.instance;
     setState((){scanning_enabled=!scanning_enabled;});
     if (scanning_enabled) {
       print('Scanning...');
       // Start scanning
-      flutterBlue.startScan(timeout: Duration(seconds: 4));
+      Map<String,List<int>>readings=Map();
+      var timer = new Timer.periodic(const Duration(seconds: 35), (timer) {
+        flutterBlue.startScan(timeout: Duration(seconds: 30));
+      var now,lastSendingMinute=-1;
       // Listen to scan results
       flutterBlue.scanResults.listen((results) {
         // do something with scan results
-        for (ScanResult r in results) {
-          devices += '${r.device.name} found! rssi: ${r.rssi}';
-          print('${r.device.name} found! rssi: ${r.rssi}');
+        for (ScanResult r in results){
+          if(myBeacons.contains(r.device.id.toString())){
+            print(r.device.id.toString());
+            if(!readings.containsKey(r.device.id.toString()))
+              readings[r.device.id.toString()]=[];
+            readings[r.device.id.toString()]?.add(r.rssi);
+          }
+          now = DateTime.now();
+          print(readings);
+          if(now.minute%5==0 &&now.minute!=lastSendingMinute){
+            lastSendingMinute=now.minute;
+            readings.forEach((k,v){
+              //k is beacon name, v is the list of values
+              var mean = v.reduce((a,b) => a + b) / v.length;
+              print(mean);
+              //send this  mean using mqtt
+            });
+            readings.clear();
+            //send to platform
+          }
         }
       });
+      });//(const Duration(seconds: 1), doStuffCallback);
+
+      
     }
     // Stop scanning
     else
@@ -79,7 +108,7 @@ class _HomePageState extends State<HomePage> {
                 color: Colors.green,
               ),
               Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                 Text(
                   'Subject',
