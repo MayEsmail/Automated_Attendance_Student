@@ -1,54 +1,73 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_blue/flutter_blue.dart';
+import 'package:students/Common_Widgets/rounded_button.dart';
+import 'package:students/constants.dart';
 
 TextStyle customTextStyle =
     TextStyle(fontSize: 18, color: Colors.black, fontWeight: FontWeight.bold);
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  bool scanning_enabled = false;
+
+  void scanningToggler() {
+    // Map<String, List<int>> beaconsList = Map();
+    String devicesName = "Test";
+    FlutterBlue flutterBlue = FlutterBlue.instance;
+    setState(() {
+      scanning_enabled = !scanning_enabled;
+    });
+    if (scanning_enabled) {
+      print('Scanning...');
+
+      // Start scanning
+      flutterBlue.startScan();
+      // Listen to scan results
+      flutterBlue.scanResults.listen((results) {
+        // do something with scan results
+        for (ScanResult r in results) {
+          // if (r.device.name != "") beaconsList[r.device.name] = [r.rssi];
+          devicesName +=
+              'Name: ${r.device.name}. AdData: ${r.advertisementData}. RSSI: ${r.rssi}';
+          print(
+              'Name: ${r.device.name}. AdData: ${r.advertisementData}. RSSI: ${r.rssi}');
+        }
+      });
+    }
+    // Stop scanning
+    else
+      flutterBlue.stopScan();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Column(
         children: [
-          Flexible(
-            child: Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Icon(
-                    Icons.check_rounded,
-                    size: 60,
-                    color: Colors.green,
-                  ),
+          scanning_enabled
+              ? Scanning_Info(
+                  icon: Icons.check_rounded,
+                  color: Colors.green,
+                  activity: "Automated attendacne is active")
+              : Scanning_Info(
+                  icon: Icons.signal_cellular_nodata,
+                  color: Colors.redAccent[700],
+                  activity: "Automated attendacne is not active",
                 ),
-                Flexible(
-                  child: Text(
-                    'Automated attendacne is active',
-                    textAlign: TextAlign.left,
-                    style: TextStyle(
-                        fontSize: 25,
-                        color: Colors.black,
-                        fontWeight: FontWeight.normal),
-                  ),
-                ),
-              ],
-            ),
-          ),
           Padding(padding: const EdgeInsets.only(bottom: 20.0)),
           SizedBox(
             width: 200.0,
-            child: OutlinedButton(
-              onPressed: () {
-                print("DAMN");
-              },
-              child: Text(
-                'Turn on',
-                style: TextStyle(fontSize: 25),
-              ),
-              style: OutlinedButton.styleFrom(
-                shape: StadiumBorder(),
-              ),
+            child: RoundedButton(
+              text: scanning_enabled ? 'Turn off' : 'Turn on',
+              onPressed: scanningToggler,
+              color: Colors.grey[700],
+              splash: kPrimaryColor,
             ),
           ),
           Padding(
@@ -64,11 +83,11 @@ class HomePage extends StatelessWidget {
             ),
           ),
           Text(
-            'Current Session Info',
+            'Current Session',
             textAlign: TextAlign.center,
             style: TextStyle(
                 fontSize: 24,
-                color: Colors.deepOrange,
+                color: kPrimaryColor,
                 fontWeight: FontWeight.bold),
           ),
           Padding(padding: const EdgeInsets.only(bottom: 20.0)),
@@ -79,7 +98,7 @@ class HomePage extends StatelessWidget {
                 size: 120,
                 color: Colors.green,
               ),
-              Column(children: [
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(
                   'Subject',
                   textAlign: TextAlign.left,
@@ -87,28 +106,23 @@ class HomePage extends StatelessWidget {
                 ),
                 Text(
                   'Instructor',
-                  textAlign: TextAlign.left,
                   style: customTextStyle,
                 ),
                 Text(
                   'Room',
                   style: customTextStyle,
-                  textAlign: TextAlign.left,
                 ),
                 Text(
                   'Floor',
                   style: customTextStyle,
-                  textAlign: TextAlign.left,
                 ),
                 Text(
                   'From',
                   style: customTextStyle,
-                  textAlign: TextAlign.left,
                 ),
                 Text(
                   'To',
                   style: customTextStyle,
-                  textAlign: TextAlign.left,
                 ),
               ])
             ],
@@ -122,18 +136,57 @@ class HomePage extends StatelessWidget {
           ),
           Flexible(
             child: Align(
-              alignment: Alignment.bottomLeft,
+              alignment: Alignment.center,
               child: Text(
                 'You have attended 55 minutes out of 60 minutes',
-                textAlign: TextAlign.left,
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 20,
-                  color: Colors.deepOrange,
+                  color: kPrimaryColor,
                   fontWeight: FontWeight.normal,
                 ),
               ),
             ),
           )
+        ],
+      ),
+    );
+  }
+}
+
+class Scanning_Info extends StatelessWidget {
+  const Scanning_Info(
+      {Key? key,
+      required this.icon,
+      required this.color,
+      required this.activity})
+      : super(key: key);
+  final icon;
+  final color;
+  final activity;
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              icon,
+              size: 60,
+              color: color,
+            ),
+          ),
+          Flexible(
+            child: Text(
+              activity,
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                  fontSize: 25,
+                  color: Colors.black,
+                  fontWeight: FontWeight.normal),
+            ),
+          ),
         ],
       ),
     );

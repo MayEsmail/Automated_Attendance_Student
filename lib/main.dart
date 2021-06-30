@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:students/Common_Widgets/CustomAppBar.dart';
 import 'Attendance/attendance.dart';
-import 'Home/Home.dart';
+import 'package:students/widgets/home/home.dart';
 import 'constants.dart';
 import 'schedule/schedule.dart';
 import './login/login.dart';
@@ -28,18 +29,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return (MaterialApp(
       home: Scaffold(
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(110),
-          child: AppBar(
-            flexibleSpace: Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage("assets/images/iti.png"),
-                    fit: BoxFit.fill),
-              ),
-            ),
-          ),
-        ),
+        appBar: CustomAppBar("a", AppBar().preferredSize),
         body: isLoggedIn ? render(_currentIdx) : LoginScreen(),
         bottomNavigationBar: isLoggedIn
             ? (BottomNavigationBar(

@@ -203,8 +203,8 @@ class _MyHomePageState extends State<MyHomePage> {
       flutterBlue.scanResults.listen((results) {
         // do something with scan results
         for (ScanResult r in results) {
-          devices += '${r.device.name} found! rssi: ${r.rssi}';
-          print('${r.device.name} found! rssi: ${r.rssi}');
+          // devices += '${r.device.name} found! rssi: ${r.rssi}';
+          // print('${r.device.name} found! rssi: ${r.rssi}');
         }
       });
     }
