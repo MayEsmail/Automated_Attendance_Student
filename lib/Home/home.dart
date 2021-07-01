@@ -14,22 +14,22 @@ import '../MQTT/MQTTManager.dart';
 TextStyle customTextStyle =
     TextStyle(fontSize: 18, color: Colors.black, fontWeight: FontWeight.bold);
 
-// class HomePage extends StatefulWidget {
-//   @override
-//   _HomePageState createState() => _HomePageState();
-// }
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
 
 class _HomePageState extends State<HomePage> {
-  StudentMQTT obj = new StudentMQTT();
   bool scanning_enabled = false;
   List myBeacons = ['AC:23:3F:2C:D2:D6', 'AC:23:3F:2C:D2:B8'];
+  StudentMQTT MQTTObj = new StudentMQTT();
+  Future<MqttServerClient> getClient2() async {
+    MqttServerClient client = await MQTTObj.getClient();
+    return client;
+  }
+
   void scanningToggler() {
-    // MqttServerClient client = obj.getClientInstance();
-    // if (client != null) {
-    //   obj.publishMessage(client);
-    // }
-    return;
-    String devices = "Test";
+    MqttServerClient client = getClient2() as MqttServerClient;
     FlutterBlue flutterBlue = FlutterBlue.instance;
     setState(() {
       scanning_enabled = !scanning_enabled;
@@ -60,14 +60,31 @@ class _HomePageState extends State<HomePage> {
                 var mean = v.reduce((a, b) => a + b) / v.length;
                 print(mean);
                 //send this  mean using mqtt
+                // obj.publishMessage(client,
+                //     '{"beacons": [{"id": "U Za3bola","rssi": 70}, {"id": "b8","rssi": 80}],"stId": "1"}');
               });
               readings.clear();
               //send to platform
             }
           }
+          now = DateTime.now();
+          print(readings);
+          if (now.minute % 5 == 0 && now.minute != lastSendingMinute) {
+            lastSendingMinute = now.minute;
+            var payload = {"beacons": []};
+            readings.forEach((k, v) {
+              //k is beacon name, v is the list of values
+              var mean = v.reduce((a, b) => a + b) / v.length;
+              print(mean);
+              payload["beacons"]!.add({"id": k, "rssi": mean});
+              //send this  mean using mqtt
+            });
+            MQTTObj.publishMessage(client, payload.toString());
+            readings.clear();
+            //send to platform
+          }
         });
       }); //(const Duration(seconds: 1), doStuffCallback);
-
     }
     // Stop scanning
     else

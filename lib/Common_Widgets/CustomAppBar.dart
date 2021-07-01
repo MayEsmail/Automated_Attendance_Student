@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
-  final String pageTitle;
+  final pageTitle;
 
   @override
   final Size preferredSize;
@@ -16,7 +16,7 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
       title: Row(
         children: [
           Image.asset(
-            "assets/images/iti_logo.png",
+            "assets/images/logo.png",
             width: 30,
             fit: BoxFit.fitHeight,
           ),

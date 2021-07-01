@@ -9,12 +9,12 @@ import 'package:students/constants.dart';
 TextStyle customTextStyle =
     TextStyle(fontSize: 18, color: Colors.black, fontWeight: FontWeight.bold);
 
-class HomePage extends StatefulWidget {
+class HomePagekjhkuhkuh extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePagekjhkuhkuh> {
   StudentMQTT obj = new StudentMQTT();
   bool scanning_enabled = false;
   List myBeacons = ['AC:23:3F:2C:D2:D6', 'AC:23:3F:2C:D2:B8'];
