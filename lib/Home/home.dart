@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:students/MQTT/mqttFinal.dart';
 import 'package:students/widgets/home/home.dart';
 import '../Common_Widgets/rounded_button.dart';
@@ -19,10 +20,14 @@ TextStyle customTextStyle =
 // }
 
 class _HomePageState extends State<HomePage> {
+  StudentMQTT obj = new StudentMQTT();
   bool scanning_enabled = false;
   List myBeacons = ['AC:23:3F:2C:D2:D6', 'AC:23:3F:2C:D2:B8'];
   void scanningToggler() {
-    myConnect();
+    // MqttServerClient client = obj.getClientInstance();
+    // if (client != null) {
+    //   obj.publishMessage(client);
+    // }
     return;
     String devices = "Test";
     FlutterBlue flutterBlue = FlutterBlue.instance;

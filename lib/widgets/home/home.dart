@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:students/Common_Widgets/rounded_button.dart';
+import 'package:students/MQTT/mqttFinal.dart';
 import 'package:students/constants.dart';
 
 TextStyle customTextStyle =
@@ -13,9 +15,19 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  StudentMQTT obj = new StudentMQTT();
   bool scanning_enabled = false;
-
-  void scanningToggler() {
+  List myBeacons = ['AC:23:3F:2C:D2:D6', 'AC:23:3F:2C:D2:B8'];
+  Future<void> scanningToggler() async {
+    MqttServerClient client = await obj.getClient();
+    print(client);
+    obj.publishMessage(client,
+        '{"beacons": [{"id": "U Za3bola","rssi": 70}, {"id": "b8","rssi": 80}],"stId": "1"}');
+    // myConnect();
+    // if (client != null) {
+    //   obj.publishMessage(client);
+    // }
+    return;
     // Map<String, List<int>> beaconsList = Map();
     String devicesName = "Test";
     FlutterBlue flutterBlue = FlutterBlue.instance;

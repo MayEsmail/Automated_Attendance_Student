@@ -1,24 +1,65 @@
-import 'dart:ffi';
+import 'dart:convert';
 
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 
+const String TOPIC = "iti/2021/AutomatedAttendance/mobile",
+    BROKER = "beta.masterofthings.com",
+    USERNAME = "iti2021_projects",
+    PASSWORD = "iti2021_projects";
+const int PORT = 1883;
+
+class StudentMQTT {
+  // var _client = null;
+  // Future<MqttServerClient> getClientInstance() async {
+  //   if (_client == null) _client = await _getClient() as MqttServerClient;
+  //   print(_client);
+  //   return _client;
+  // }
+
+  Future<MqttServerClient> getClient() async {
+    MqttServerClient client =
+        MqttServerClient.withPort(BROKER, 'flutter_client', PORT);
+    client.logging(on: true);
+
+    final connMessage = MqttConnectMessage()
+        .authenticateAs(USERNAME, PASSWORD)
+        .startClean()
+        .withWillQos(MqttQos.atMostOnce);
+    client.connectionMessage = connMessage;
+    try {
+      await client.connect();
+    } catch (e) {
+      print('[-] CANT CONNECT TO THIS CLIENT YA GMA3A\nException: $e');
+      client.disconnect();
+    }
+    print(client);
+    return client;
+  }
+
+  void publishMessage(MqttServerClient client, String message) {
+    final builder = MqttClientPayloadBuilder();
+    builder.addString(Uri.encodeComponent(message));
+    client.publishMessage(TOPIC, MqttQos.atMostOnce, builder.payload!);
+  }
+}
+
 Future<MqttServerClient> myConnect() async {
-  MqttServerClient client =
-      MqttServerClient.withPort('beta.masterofthings.com', 'flutter_client', 1883);
+  MqttServerClient client = MqttServerClient.withPort(
+      'beta.masterofthings.com', 'flutter_client', 1883);
   client.logging(on: true);
-  client.onConnected = onConnected;
-  client.onDisconnected = onDisconnected;
-  client.onSubscribed = onSubscribed;
-  client.onSubscribeFail = onSubscribeFail;
-  client.pongCallback = pong;
+  // client.onConnected = onConnected;
+  // client.onDisconnected = onDisconnected;
+  // client.onSubscribed = onSubscribed;
+  // client.onSubscribeFail = onSubscribeFail;
+  // client.pongCallback = pong;
 
   final connMessage = MqttConnectMessage()
       .authenticateAs('iti2021_projects', 'iti2021_projects')
-      .keepAliveFor(60)
-      .withWillTopic('iti/2021/AutomatedAttendance/mobile')
-      .withWillMessage('{"beacons":[{"id":"d6", "rssi":70}, {"id":"b8", "rssi":80},]},"stId":"1"}')
-      .startClean()
+      //     .keepAliveFor(60)
+      //     .withWillTopic('iti/2021/AutomatedAttendance/mobile')
+      //     .withWillMessage('U BESO')
+      //     .startClean()
       .withWillQos(MqttQos.atMostOnce);
   client.connectionMessage = connMessage;
   try {
@@ -34,18 +75,22 @@ Future<MqttServerClient> myConnect() async {
 // ​
 //     print('Received message:$payload from topic: ${c[0].topic}>');
 //   });
-  const pubTopic = 'topic/test';
+  const pubTopic = 'iti/2021/AutomatedAttendance/mobile';
   final builder = MqttClientPayloadBuilder();
-  builder.addString('{"beacons":[{"id":"d6", "rssi":70}, {"id":"b8", "rssi":80},]},"stId":"1"}');
+  // var encodedMsg = utf8.encode(
+  //     '{"beacons":[{"id":"z3bola", "rssi":70}, {"id":"b8", "rssi":80},]},"stId":"1"}');
+  var encodedMsg =
+      '{\"beacons\":[{\"id\":\"z3boljjja\", \"rssi\":70}, {\"id\":\"b8\", \"rssi\":80},]},\"stId\":\"1\"}';
+  builder.addString(Uri.encodeComponent(encodedMsg));
   client.publishMessage(pubTopic, MqttQos.atMostOnce, builder.payload!);
-
   return client;
 }
 
-void publishMePlz(MqttServerClient client){
-  const pubTopic = 'topic/test';
+void publishMePlz(MqttServerClient client) {
+  const pubTopic = 'iti/2021/AutomatedAttendance/mobile';
   final builder = MqttClientPayloadBuilder();
-  builder.addString('Hello MQTT');
+  builder.addString(
+      '{\"beacons":[{"id":"z3bola", "rssi":70}, {"id":"b8", "rssi":80},]},"stId":"1"}');
   client.publishMessage(pubTopic, MqttQos.atMostOnce, builder.payload!);
 }
 
