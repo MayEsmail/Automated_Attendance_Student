@@ -5,40 +5,36 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
-import 'package:students/MQTT/mqttFinal.dart';
-import 'package:students/widgets/home/home.dart';
+import 'package:students/MQTT/MQTTManager.dart';
+import 'package:students/login/login.dart';
 import '../Common_Widgets/rounded_button.dart';
 import 'package:students/constants.dart';
 
 TextStyle customTextStyle =
     TextStyle(fontSize: 18, color: Colors.black, fontWeight: FontWeight.bold);
-
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  // static var client;
   bool scanning_enabled = false;
   List myBeacons = ['AC:23:3F:2C:D2:D6', 'AC:23:3F:2C:D2:B8'];
   StudentMQTT MQTTObj = new StudentMQTT();
-  Future<MqttServerClient> getClient2() async {
-    MqttServerClient client = await MQTTObj.getClient();
-    return client;
-  }
 
+    var timer;
   Future<void> scanningToggler() async {
     setState(() {
       scanning_enabled = !scanning_enabled;
     });
-    print("WOW I;M IN HOME");
-    MqttServerClient client = await MQTTObj.getClient();
+    // client = await MQTTObj.getClient();
     FlutterBlue flutterBlue = FlutterBlue.instance;
     if (scanning_enabled) {
       print('Scanning...');
       // Start scanning
       Map<String, List<int>> readings = Map();
-      var timer = new Timer.periodic(const Duration(seconds: 35), (timer) {
+      timer = new Timer.periodic(const Duration(seconds: 35), (timer) {
         flutterBlue.startScan(timeout: Duration(seconds: 30));
         var now, lastSendingMinute = -1;
         // Listen to scan results
@@ -66,7 +62,7 @@ class _HomePageState extends State<HomePage> {
               });
               print(jsonEncode(payload));
               payload["stId"] = 1;
-              MQTTObj.publishMessage(client, jsonEncode(payload));
+              MQTTObj.publishMessage(LoginScreen.client, jsonEncode(payload), TOPIC+"mobile");
               readings.clear();
               //send to platform
             }
@@ -75,8 +71,10 @@ class _HomePageState extends State<HomePage> {
       }); //(const Duration(seconds: 1), doStuffCallback);
     }
     // Stop scanning
-    else
+    else{
+      timer.cancel();
       flutterBlue.stopScan();
+    }
   }
 
   @override
@@ -189,41 +187,41 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// class Scanning_Info extends StatelessWidget {
-//   const Scanning_Info(
-//       {Key? key,
-//       required this.icon,
-//       required this.color,
-//       required this.activity})
-//       : super(key: key);
-//   final icon;
-//   final color;
-//   final activity;
-//   @override
-//   Widget build(BuildContext context) {
-//     return Flexible(
-//       child: Row(
-//         children: [
-//           Padding(
-//             padding: const EdgeInsets.all(8.0),
-//             child: Icon(
-//               icon,
-//               size: 60,
-//               color: color,
-//             ),
-//           ),
-//           Flexible(
-//             child: Text(
-//               activity,
-//               textAlign: TextAlign.left,
-//               style: TextStyle(
-//                   fontSize: 25,
-//                   color: Colors.black,
-//                   fontWeight: FontWeight.normal),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
+class Scanning_Info extends StatelessWidget {
+  const Scanning_Info(
+      {Key? key,
+      required this.icon,
+      required this.color,
+      required this.activity})
+      : super(key: key);
+  final icon;
+  final color;
+  final activity;
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              icon,
+              size: 60,
+              color: color,
+            ),
+          ),
+          Flexible(
+            child: Text(
+              activity,
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                  fontSize: 25,
+                  color: Colors.black,
+                  fontWeight: FontWeight.normal),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

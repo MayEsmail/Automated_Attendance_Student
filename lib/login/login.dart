@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/widgets.dart';
+import 'package:students/MQTT/MQTTManager.dart';
 import 'package:students/login/rounded_container.dart';
 import 'package:students/login/rounded_container.dart';
 import '../mainPage.dart';
@@ -11,6 +14,18 @@ import '../constants.dart';
 class LoginScreen extends StatelessWidget {
   TextEditingController studentIDController = new TextEditingController();
   TextEditingController passwordController = new TextEditingController();
+  static var client;
+  static String globalUserID='';
+  StudentMQTT MQTTObj = new StudentMQTT();
+  bool clicked = false;
+
+  Future<void> authentiacateStudent(String username, String password) async {
+    if (!clicked){ client = await MQTTObj.getClient(); clicked=true;}
+    var payload = {"username":username, "password": password};
+    print(TOPIC+"login_pub");
+    MQTTObj.publishMessage(client, jsonEncode(payload), TOPIC+"login_pub");
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -69,7 +84,9 @@ class LoginScreen extends StatelessWidget {
               onPressed: () {
                 String id = studentIDController.text;
                 String password = passwordController.text;
-                if (id.toLowerCase() == "" && password == "") {
+                  authentiacateStudent(id, password);
+                if (id.toLowerCase() == "1" && password == "1") {
+                  globalUserID=id;
                   Navigator.pushReplacement(context,
                       MaterialPageRoute(builder: (context) => mainPage()));
                 }

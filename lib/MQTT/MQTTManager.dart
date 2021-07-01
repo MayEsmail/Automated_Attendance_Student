@@ -1,108 +1,121 @@
+import 'dart:convert';
+
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
-import 'MQTTAppState.dart';
+import 'package:students/constants.dart';
 
-class MQTTManager {
-  // Private instance of client
-  final MQTTAppState _currentState;
-  MqttServerClient? _client;
-  final String _identifier;
-  final String _host;
-  final String _topic;
 
-  // Constructor
-  // ignore: sort_constructors_first
-  MQTTManager(
-      {required String host,
-      required String topic,
-      required String identifier,
-      required MQTTAppState state})
-      : _identifier = identifier,
-        _host = host,
-        _topic = topic,
-        _currentState = state;
+class StudentMQTT {
+  // var _client = null;
+  // Future<MqttServerClient> getClientInstance() async {
+  //   if (_client == null) _client = await _getClient() as MqttServerClient;
+  //   print(_client);
+  //   return _client;
+  // }
 
-  void initializeMQTTClient() {
-    _client = MqttServerClient(_host, _identifier);
-    _client!.port = 1883;
-    _client!.keepAlivePeriod = 60;
-    _client!.onDisconnected = onDisconnected;
-    _client!.secure = false;
-    _client!.logging(on: true);
+  Future<MqttServerClient> getClient() async {
+    MqttServerClient client =
+        MqttServerClient.withPort(BROKER, 'flutter_client', PORT);
+    client.logging(on: true);
 
-    /// Add the successful connection callback
-    _client!.onConnected = onConnected;
-    _client!.onSubscribed = onSubscribed;
-
-    final MqttConnectMessage connMess = MqttConnectMessage()
-        .withClientIdentifier(_identifier)
-        .withWillTopic(
-            'willtopic') // If you set this you must set a will message
-        .withWillMessage('My Will message')
-        .startClean() // Non persistent session for testing
+    final connMessage = MqttConnectMessage()
+        .authenticateAs(USERNAME, PASSWORD)
+        .startClean()
         .withWillQos(MqttQos.atMostOnce);
-    print('connecting client....');
-    _client!.connectionMessage = connMess;
-  }
-
-  // Connect to the host
-  // ignore: avoid_void_async
-  void connect() async {
-    assert(_client != null);
+    client.connectionMessage = connMessage;
     try {
-      print('start client connecting....');
-      _currentState.setAppConnectionState(MQTTAppConnectionState.connecting);
-      await _client!.connect();
-    } on Exception catch (e) {
-      print('client exception - $e');
-      disconnect();
+      await client.connect();
+    } catch (e) {
+      print('[-] CANT CONNECT TO THIS CLIENT YA GMA3A\nException: $e');
+      client.disconnect();
     }
+    print(client);
+    return client;
   }
 
-  void disconnect() {
-    print('Disconnected');
-    _client!.disconnect();
+  void publishMessage(MqttServerClient client, String message, String topic) {
+    final builder = MqttClientPayloadBuilder();
+    builder.addString(Uri.encodeComponent(message));
+    client.publishMessage(topic, MqttQos.atMostOnce, builder.payload!);
   }
+}
 
-  void publish(String message) {
-    final MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
-    builder.addString(message);
-    _client!.publishMessage(_topic, MqttQos.atMostOnce, builder.payload!);
+Future<MqttServerClient> myConnect() async {
+  MqttServerClient client = MqttServerClient.withPort(
+      'beta.masterofthings.com', 'flutter_client', 1883);
+  client.logging(on: true);
+  // client.onConnected = onConnected;
+  // client.onDisconnected = onDisconnected;
+  // client.onSubscribed = onSubscribed;
+  // client.onSubscribeFail = onSubscribeFail;
+  // client.pongCallback = pong;
+
+  final connMessage = MqttConnectMessage()
+      .authenticateAs('iti2021_projects', 'iti2021_projects')
+      //     .keepAliveFor(60)
+      //     .withWillTopic('iti/2021/AutomatedAttendance/mobile')
+      //     .withWillMessage('U BESO')
+      //     .startClean()
+      .withWillQos(MqttQos.atMostOnce);
+  client.connectionMessage = connMessage;
+  try {
+    await client.connect();
+  } catch (e) {
+    print('Exception: $e');
+    client.disconnect();
   }
+// ​
+//   client.updates!.listen((List<MqttReceivedMessage<MqttMessage>> c) {
+//     final MqttPublishMessage message = "hello";
+//     final payload = MqttPublishPayload.bytesToStringAsString(message);
+// ​
+//     print('Received message:$payload from topic: ${c[0].topic}>');
+//   });
+  const pubTopic = 'iti/2021/AutomatedAttendance/mobile';
+  final builder = MqttClientPayloadBuilder();
+  // var encodedMsg = utf8.encode(
+  //     '{"beacons":[{"id":"z3bola", "rssi":70}, {"id":"b8", "rssi":80},]},"stId":"1"}');
+  var encodedMsg =
+      '{\"beacons\":[{\"id\":\"z3boljjja\", \"rssi\":70}, {\"id\":\"b8\", \"rssi\":80},]},\"stId\":\"1\"}';
+  builder.addString(Uri.encodeComponent(encodedMsg));
+  client.publishMessage(pubTopic, MqttQos.atMostOnce, builder.payload!);
+  return client;
+}
 
-  /// The subscribed callback
-  void onSubscribed(String topic) {
-    print('Subscription confirmed for topic $topic');
-  }
+void publishMePlz(MqttServerClient client) {
+  const pubTopic = 'iti/2021/AutomatedAttendance/mobile';
+  final builder = MqttClientPayloadBuilder();
+  builder.addString(
+      '{\"beacons":[{"id":"z3bola", "rssi":70}, {"id":"b8", "rssi":80},]},"stId":"1"}');
+  client.publishMessage(pubTopic, MqttQos.atMostOnce, builder.payload!);
+}
 
-  /// The unsolicited disconnect callback
-  void onDisconnected() {
-    print('OnDisconnected client callback - Client disconnection');
-    if (_client!.connectionStatus!.returnCode ==
-        MqttConnectReturnCode.noneSpecified) {
-      print('OnDisconnected callback is solicited, this is correct');
-    }
-    _currentState.setAppConnectionState(MQTTAppConnectionState.disconnected);
-  }
+// connection succeeded
+void onConnected() {
+  print('Connected');
+}
 
-  /// The successful connect callback
-  void onConnected() {
-    _currentState.setAppConnectionState(MQTTAppConnectionState.connected);
-    print('client connected....');
-    _client!.subscribe(_topic, MqttQos.atLeastOnce);
-    _client!.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
-      // ignore: avoid_as
-      final MqttPublishMessage recMess = c![0].payload as MqttPublishMessage;
+// unconnected
+void onDisconnected() {
+  print('Disconnected');
+}
 
-      // final MqttPublishMessage recMess = c![0].payload;
-      final String pt =
-          MqttPublishPayload.bytesToStringAsString(recMess.payload.message!);
-      _currentState.setReceivedText(pt);
-      print(
-          'Change notification:: topic is <${c[0].topic}>, payload is <-- $pt -->');
-      print('');
-    });
-    print(
-        'OnConnected client callback - Client connection was sucessful');
-  }
+// subscribe to topic succeeded
+void onSubscribed(String topic) {
+  print('Subscribed topic: $topic');
+}
+
+// subscribe to topic failed
+void onSubscribeFail(String topic) {
+  print('Failed to subscribe $topic');
+}
+
+// unsubscribe succeeded
+void onUnsubscribed(String topic) {
+  print('Unsubscribed topic: $topic');
+}
+
+// PING response received
+void pong() {
+  print('Ping response client callback invoked');
 }
