@@ -1,4 +1,3 @@
-import 'dart:ffi';
 
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
@@ -17,7 +16,7 @@ Future<MqttServerClient> myConnect() async {
       .authenticateAs('iti2021_projects', 'iti2021_projects')
       .keepAliveFor(60)
       .withWillTopic('iti/2021/AutomatedAttendance/mobile')
-      .withWillMessage('{"beacons":[{"id":"d6", "rssi":70}, {"id":"b8", "rssi":80},]},"stId":"1"}')
+      .withWillMessage('{"beacons":[{"id":"d6", "rssi":70}, {"id":"b8", "rssi":80},]},"stId":"1"}9')
       .startClean()
       .withWillQos(MqttQos.atMostOnce);
   client.connectionMessage = connMessage;

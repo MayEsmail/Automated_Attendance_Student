@@ -18,10 +18,9 @@ class SetImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       width: size.width*width,
       height: size.height*height,
-      child: Container(
         margin: EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
           image: DecorationImage(
@@ -29,8 +28,7 @@ class SetImage extends StatelessWidget {
             fit: BoxFit.fill
           ),
         ),
-      ),
-    );
+      );
   }
 }
 

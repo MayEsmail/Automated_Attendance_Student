@@ -20,8 +20,6 @@ class _HomePageState extends State<HomePage> {
   bool scanning_enabled=false;
   List myBeacons=['AC:23:3F:2C:D2:D6','AC:23:3F:2C:D2:B8'];
   void scanningToggler(){
-    myConnect();
-    return;
     String devices = "Test";
     FlutterBlue flutterBlue = FlutterBlue.instance;
     setState((){scanning_enabled=!scanning_enabled;});
@@ -58,8 +56,6 @@ class _HomePageState extends State<HomePage> {
         }
       });
       });//(const Duration(seconds: 1), doStuffCallback);
-
-      
     }
     // Stop scanning
     else
