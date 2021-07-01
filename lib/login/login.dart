@@ -69,7 +69,7 @@ class LoginScreen extends StatelessWidget {
               onPressed: () {
                 String id = studentIDController.text;
                 String password = passwordController.text;
-                if (id.toLowerCase() == "1" && password == "1") {
+                if (id.toLowerCase() == "" && password == "") {
                   Navigator.pushReplacement(context,
                       MaterialPageRoute(builder: (context) => mainPage()));
                 }

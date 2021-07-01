@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,12 @@ import '../MQTT/MQTTManager.dart';
 TextStyle customTextStyle =
     TextStyle(fontSize: 18, color: Colors.black, fontWeight: FontWeight.bold);
 
+class Payload {
+  List<dynamic> beacons;
+  int stId;
+  Payload({required this.beacons, required this.stId});
+}
+
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
@@ -28,12 +35,13 @@ class _HomePageState extends State<HomePage> {
     return client;
   }
 
-  void scanningToggler() {
-    MqttServerClient client = getClient2() as MqttServerClient;
-    FlutterBlue flutterBlue = FlutterBlue.instance;
+  Future<void> scanningToggler() async {
     setState(() {
       scanning_enabled = !scanning_enabled;
     });
+    print("WOW I;M IN HOME");
+    MqttServerClient client = await MQTTObj.getClient();
+    FlutterBlue flutterBlue = FlutterBlue.instance;
     if (scanning_enabled) {
       print('Scanning...');
       // Start scanning
@@ -52,37 +60,48 @@ class _HomePageState extends State<HomePage> {
               readings[r.device.id.toString()]?.add(r.rssi);
             }
             now = DateTime.now();
-            print(readings);
-            if (now.minute % 5 == 0 && now.minute != lastSendingMinute) {
+            // print(readings);
+            if (now.minute % 1 == 0 && now.minute != lastSendingMinute) {
               lastSendingMinute = now.minute;
+              var payload = {};
+              payload["beacons"] = [];
+              // var  payload2 = {"beacons": 1, "asd":2};
               readings.forEach((k, v) {
                 //k is beacon name, v is the list of values
                 var mean = v.reduce((a, b) => a + b) / v.length;
                 print(mean);
+                payload["beacons"]!.add({"id": k, "rssi": mean});
                 //send this  mean using mqtt
                 // obj.publishMessage(client,
                 //     '{"beacons": [{"id": "U Za3bola","rssi": 70}, {"id": "b8","rssi": 80}],"stId": "1"}');
               });
+              // Payload(beacons: payload, stId: 1);
+              print(jsonEncode(payload));
+              // List<Tag> l = [Tag("becons", )];
+
+              payload["stId"] = 1;
+              MQTTObj.publishMessage(client, jsonEncode(payload));
               readings.clear();
               //send to platform
             }
           }
-          now = DateTime.now();
-          print(readings);
-          if (now.minute % 5 == 0 && now.minute != lastSendingMinute) {
-            lastSendingMinute = now.minute;
-            var payload = {"beacons": []};
-            readings.forEach((k, v) {
-              //k is beacon name, v is the list of values
-              var mean = v.reduce((a, b) => a + b) / v.length;
-              print(mean);
-              payload["beacons"]!.add({"id": k, "rssi": mean});
-              //send this  mean using mqtt
-            });
-            MQTTObj.publishMessage(client, payload.toString());
-            readings.clear();
-            //send to platform
-          }
+          // now = DateTime.now();
+          // print(readings);
+          // if (now.minute % 1 == 0 && now.minute != lastSendingMinute) {
+          //   lastSendingMinute = now.minute;
+          //   var payload = {"beacons": []};
+          //   readings.forEach((k, v) {
+          //     //k is beacon name, v is the list of values
+          //     var mean = v.reduce((a, b) => a + b) / v.length;
+          //     print(mean);
+          //     payload["beacons"]!.add({"id": k, "rssi": mean});
+          //     //send this  mean using mqtt
+          //   });
+          //   print(payload.toString());
+          //   MQTTObj.publishMessage(client, payload.toString());
+          //   readings.clear();
+          //   //send to platform
+          // }
         });
       }); //(const Duration(seconds: 1), doStuffCallback);
     }
