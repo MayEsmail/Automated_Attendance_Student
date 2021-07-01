@@ -9,17 +9,9 @@ import 'package:students/MQTT/mqttFinal.dart';
 import 'package:students/widgets/home/home.dart';
 import '../Common_Widgets/rounded_button.dart';
 import 'package:students/constants.dart';
-import '../MQTT/MQTTAppState.dart';
-import '../MQTT/MQTTManager.dart';
 
 TextStyle customTextStyle =
     TextStyle(fontSize: 18, color: Colors.black, fontWeight: FontWeight.bold);
-
-class Payload {
-  List<dynamic> beacons;
-  int stId;
-  Payload({required this.beacons, required this.stId});
-}
 
 class HomePage extends StatefulWidget {
   @override
@@ -71,37 +63,14 @@ class _HomePageState extends State<HomePage> {
                 var mean = v.reduce((a, b) => a + b) / v.length;
                 print(mean);
                 payload["beacons"]!.add({"id": k, "rssi": mean});
-                //send this  mean using mqtt
-                // obj.publishMessage(client,
-                //     '{"beacons": [{"id": "U Za3bola","rssi": 70}, {"id": "b8","rssi": 80}],"stId": "1"}');
               });
-              // Payload(beacons: payload, stId: 1);
               print(jsonEncode(payload));
-              // List<Tag> l = [Tag("becons", )];
-
               payload["stId"] = 1;
               MQTTObj.publishMessage(client, jsonEncode(payload));
               readings.clear();
               //send to platform
             }
           }
-          // now = DateTime.now();
-          // print(readings);
-          // if (now.minute % 1 == 0 && now.minute != lastSendingMinute) {
-          //   lastSendingMinute = now.minute;
-          //   var payload = {"beacons": []};
-          //   readings.forEach((k, v) {
-          //     //k is beacon name, v is the list of values
-          //     var mean = v.reduce((a, b) => a + b) / v.length;
-          //     print(mean);
-          //     payload["beacons"]!.add({"id": k, "rssi": mean});
-          //     //send this  mean using mqtt
-          //   });
-          //   print(payload.toString());
-          //   MQTTObj.publishMessage(client, payload.toString());
-          //   readings.clear();
-          //   //send to platform
-          // }
         });
       }); //(const Duration(seconds: 1), doStuffCallback);
     }
