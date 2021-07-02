@@ -4,7 +4,7 @@ import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:students/constants.dart';
 
-class StudentMQTT {
+class MQTTManager {
   Future<MqttServerClient> getClient() async {
     MqttServerClient client =
         MqttServerClient.withPort(BROKER, 'flutter_client', PORT);
@@ -29,6 +29,52 @@ class StudentMQTT {
     final builder = MqttClientPayloadBuilder();
     builder.addString(Uri.encodeComponent(message));
     client.publishMessage(topic, MqttQos.atMostOnce, builder.payload!);
+  }
+
+  void subscribeToTopic(MqttServerClient client, String topic) {
+    print("Subscriped to topic" + topic);
+    client.subscribe(topic, MqttQos.atMostOnce);
+    // client.updates!.listen((List<MqttReceivedMessage<MqttMessage>> c) {
+    //   print('Received message');
+    // });
+  }
+
+  void listenToSubTopic(MqttServerClient client) {
+    print("Listening to topic");
+    print(client.published);
+    client.updates!.listen((List<MqttReceivedMessage<MqttMessage>> c) {
+      print('Received message');
+    });
+  }
+
+  void listenOnPublished(MqttServerClient client) {
+    client.published!.listen((MqttPublishMessage message) {
+      print("RECIECED MESSAGE KMA YNB8Y");
+      print(message);
+    });
+  }
+
+  void FUNCTIONKAMLA(MqttServerClient client) {
+    if (client.connectionStatus!.state == MqttConnectionState.connected) {
+      print('EMQX client connected');
+      client.updates!.listen((List<MqttReceivedMessage<MqttMessage>> c) {
+        print('ANA GOWA LINE 61');
+
+        // final MqttPublishMessage message = c[0].payload;
+        // final payload =
+        //     MqttPublishPayload.bytesToStringAsString(message.payload.message);
+
+        print('Received message:${c[0].payload} from topic: ${c[0].topic}>');
+      });
+
+      client.published!.listen((MqttPublishMessage message) {
+        print('ANA GOWA LINE 71');
+        // final payload =
+        //     MqttPublishPayload.bytesToStringAsString(message.payload.message);
+        print(
+            'Published message: ${message.payload} to topic: ${message.variableHeader!.topicName}');
+      });
+    }
   }
 }
 

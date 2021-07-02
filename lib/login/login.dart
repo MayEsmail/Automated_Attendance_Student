@@ -14,17 +14,24 @@ class LoginScreen extends StatelessWidget {
   TextEditingController studentIDController = new TextEditingController();
   TextEditingController passwordController = new TextEditingController();
   static var client;
-  static StudentMQTT MQTTObj = new StudentMQTT();
+  MQTTManager MQTTObj = new MQTTManager();
   bool clicked = false;
-
+// iti/2021/AutomatedAttendance/login/pub
+// iti/2021/AutomatedAttendance/login/{id}/sub
   Future<void> authentiacateStudent(String username, String password) async {
     if (!clicked) {
       client = await MQTTObj.getClient();
       clicked = true;
     }
     var payload = {"username": username, "password": password};
-    print(TOPIC + "login_pub");
-    MQTTObj.publishMessage(client, jsonEncode(payload), TOPIC + "login_pub");
+    MQTTObj.publishMessage(client, jsonEncode(payload), "${TOPIC}/login_pub");
+
+    MQTTObj.subscribeToTopic(client, "${TOPIC}/login/${globalUserID}/sub");
+    // MQTTObj.subscribeToTopic(client, "${TOPIC}/schedule/${globalUserID}/sub");
+    // MQTTObj.subscribeToTopic(client, "${TOPIC}/attendance/${globalUserID}/sub");
+
+    // MQTTObj.listenToSubTopic(client);
+    MQTTObj.FUNCTIONKAMLA(client);
   }
 
   @override

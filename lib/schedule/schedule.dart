@@ -19,7 +19,9 @@ class Schedule extends StatelessWidget {
       'Friday'
     ];
     Size size = MediaQuery.of(context).size;
-    LoginScreen.MQTTObj.publishMessage(
+    MQTTManager MQTTObj = new MQTTManager();
+
+    MQTTObj.publishMessage(
         LoginScreen.client, globalUserID, TOPIC + "schedule_pub");
     return Container(
       margin: EdgeInsets.symmetric(vertical: 20),

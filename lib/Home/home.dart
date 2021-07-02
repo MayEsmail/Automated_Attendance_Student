@@ -22,7 +22,7 @@ class _HomePageState extends State<HomePage> {
   // static var client;
   bool scanning_enabled = false;
   List myBeacons = ['AC:23:3F:2C:D2:D6', 'AC:23:3F:2C:D2:B8'];
-  StudentMQTT MQTTObj = new StudentMQTT();
+  MQTTManager MQTTObj = new MQTTManager();
 
   var timer;
   Future<void> scanningToggler() async {
@@ -64,7 +64,7 @@ class _HomePageState extends State<HomePage> {
               print(jsonEncode(payload));
               payload["stId"] = 1;
               MQTTObj.publishMessage(
-                  LoginScreen.client, jsonEncode(payload), TOPIC + "mobile");
+                  LoginScreen.client, jsonEncode(payload), "${TOPIC}/mobile");
               readings.clear();
               //send to platform
             }
