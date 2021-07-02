@@ -26,6 +26,7 @@ class LoginScreen extends StatelessWidget {
       Uri.parse('https://beta.masterofthings.com/GetAppReadingValueList'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
+        "Access-Control-Allow-Origin": "*", // Required for CORS support to work
       },
       body: jsonEncode({
         "AppId": 48,
@@ -127,8 +128,6 @@ class LoginScreen extends StatelessWidget {
                 String id = studentIDController.text;
                 String password = passwordController.text;
 
-                // authentiacateStudentREST(id, password);
-                // authentiacateStudent(id, password);
                 authentiacateStudentREST(id, password).then((value) {
                   print("WTF IS THIS VALUE:");
                   print(value);
@@ -138,12 +137,6 @@ class LoginScreen extends StatelessWidget {
                         MaterialPageRoute(builder: (context) => mainPage()));
                   }
                 });
-
-                if (id == 1243374687365487) {
-                  globalUserID = id.toLowerCase();
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => mainPage()));
-                }
               },
               color: kPrimaryColor,
               splash: Colors.grey[700],
