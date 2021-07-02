@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../constants.dart';
-
 class SetImage extends StatelessWidget {
   const SetImage({
     Key? key,
@@ -19,16 +17,12 @@ class SetImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: size.width*width,
-      height: size.height*height,
-        margin: EdgeInsets.only(bottom: 20),
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(path),
-            fit: BoxFit.fill
-          ),
-        ),
-      );
+      width: size.width * width,
+      height: size.height * height,
+      margin: EdgeInsets.only(bottom: 20),
+      decoration: BoxDecoration(
+        image: DecorationImage(image: AssetImage(path), fit: BoxFit.fill),
+      ),
+    );
   }
 }
-

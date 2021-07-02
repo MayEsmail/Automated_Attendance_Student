@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_blue/flutter_blue.dart';
-import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:students/MQTT/MQTTManager.dart';
 import 'package:students/login/login.dart';
 import '../Common_Widgets/rounded_button.dart';
@@ -13,6 +12,7 @@ import 'package:students/constants.dart';
 
 TextStyle customTextStyle =
     TextStyle(fontSize: 18, color: Colors.black, fontWeight: FontWeight.bold);
+
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
@@ -22,9 +22,9 @@ class _HomePageState extends State<HomePage> {
   // static var client;
   bool scanning_enabled = false;
   List myBeacons = ['AC:23:3F:2C:D2:D6', 'AC:23:3F:2C:D2:B8'];
-  StudentMQTT MQTTObj = new StudentMQTT();
+  MQTTManager MQTTObj = new MQTTManager();
 
-    var timer;
+  var timer;
   Future<void> scanningToggler() async {
     setState(() {
       scanning_enabled = !scanning_enabled;
@@ -63,7 +63,8 @@ class _HomePageState extends State<HomePage> {
               });
               print(jsonEncode(payload));
               payload["stId"] = 1;
-              MQTTObj.publishMessage(LoginScreen.client, jsonEncode(payload), TOPIC+"mobile");
+              MQTTObj.publishMessage(
+                  LoginScreen.client, jsonEncode(payload), "${TOPIC}/mobile");
               readings.clear();
               //send to platform
             }
@@ -72,7 +73,7 @@ class _HomePageState extends State<HomePage> {
       }); //(const Duration(seconds: 1), doStuffCallback);
     }
     // Stop scanning
-    else{
+    else {
       timer.cancel();
       flutterBlue.stopScan();
     }
@@ -85,109 +86,109 @@ class _HomePageState extends State<HomePage> {
       DeviceOrientation.portraitDown,
     ]);
     return Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          children: [
-            scanning_enabled
-                ? Scanning_Info(
-                    icon: Icons.check_rounded,
-                    color: Colors.green,
-                    activity: "Automated attendacne is active")
-                : Scanning_Info(
-                    icon: Icons.signal_cellular_nodata,
-                    color: Colors.redAccent[700],
-                    activity: "Automated attendacne is not active",
-                  ),
-            Padding(padding: const EdgeInsets.only(bottom: 20.0)),
-            SizedBox(
-              width: 200.0,
-              child: RoundedButton(
-                text: scanning_enabled ? 'Turn off' : 'Turn on',
-                onPressed: scanningToggler,
-                color: Colors.grey[700],
-                splash: kPrimaryColor,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 20,
-                right: 20,
-                top: 10,
-                bottom: 10,
-              ),
-              child: Divider(
-                color: Colors.black,
-                thickness: 1.7,
-              ),
-            ),
-            Text(
-              'Current Session',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontSize: 24,
-                  color: kPrimaryColor,
-                  fontWeight: FontWeight.bold),
-            ),
-            Padding(padding: const EdgeInsets.only(bottom: 20.0)),
-            Row(
-              children: [
-                Icon(
-                  Icons.calendar_today_outlined,
-                  size: 120,
+      padding: const EdgeInsets.all(10.0),
+      child: Column(
+        children: [
+          scanning_enabled
+              ? Scanning_Info(
+                  icon: Icons.check_rounded,
                   color: Colors.green,
+                  activity: "Automated attendacne is active")
+              : Scanning_Info(
+                  icon: Icons.signal_cellular_nodata,
+                  color: Colors.redAccent[700],
+                  activity: "Automated attendacne is not active",
                 ),
-                Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                  Text(
-                    'Subject',
-                    textAlign: TextAlign.left,
-                    style: customTextStyle,
-                  ),
-                  Text(
-                    'Instructor',
-                    style: customTextStyle,
-                  ),
-                  Text(
-                    'Room',
-                    style: customTextStyle,
-                  ),
-                  Text(
-                    'Floor',
-                    style: customTextStyle,
-                  ),
-                  Text(
-                    'From',
-                    style: customTextStyle,
-                  ),
-                  Text(
-                    'To',
-                    style: customTextStyle,
-                  ),
-                ])
-              ],
+          Padding(padding: const EdgeInsets.only(bottom: 20.0)),
+          SizedBox(
+            width: 200.0,
+            child: RoundedButton(
+              text: scanning_enabled ? 'Turn off' : 'Turn on',
+              onPressed: scanningToggler,
+              color: Colors.grey[700],
+              splash: kPrimaryColor,
             ),
-            VerticalDivider(
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+              left: 20,
+              right: 20,
+              top: 10,
+              bottom: 10,
+            ),
+            child: Divider(
               color: Colors.black,
-              thickness: 6,
-              width: 20,
-              indent: 10,
-              endIndent: 10,
+              thickness: 1.7,
             ),
-            Flexible(
-              child: Align(
-                alignment: Alignment.center,
-                child: Text(
-                  'You have attended 55 minutes out of 60 minutes',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: kPrimaryColor,
-                    fontWeight: FontWeight.normal,
-                  ),
+          ),
+          Text(
+            'Current Session',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontSize: 24,
+                color: kPrimaryColor,
+                fontWeight: FontWeight.bold),
+          ),
+          Padding(padding: const EdgeInsets.only(bottom: 20.0)),
+          Row(
+            children: [
+              Icon(
+                Icons.calendar_today_outlined,
+                size: 120,
+                color: Colors.green,
+              ),
+              Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                Text(
+                  'Subject',
+                  textAlign: TextAlign.left,
+                  style: customTextStyle,
+                ),
+                Text(
+                  'Instructor',
+                  style: customTextStyle,
+                ),
+                Text(
+                  'Room',
+                  style: customTextStyle,
+                ),
+                Text(
+                  'Floor',
+                  style: customTextStyle,
+                ),
+                Text(
+                  'From',
+                  style: customTextStyle,
+                ),
+                Text(
+                  'To',
+                  style: customTextStyle,
+                ),
+              ])
+            ],
+          ),
+          VerticalDivider(
+            color: Colors.black,
+            thickness: 6,
+            width: 20,
+            indent: 10,
+            endIndent: 10,
+          ),
+          Flexible(
+            child: Align(
+              alignment: Alignment.center,
+              child: Text(
+                'You have attended 55 minutes out of 60 minutes',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 20,
+                  color: kPrimaryColor,
+                  fontWeight: FontWeight.normal,
                 ),
               ),
-            )
-          ],
-        ),
+            ),
+          )
+        ],
+      ),
     );
   }
 }

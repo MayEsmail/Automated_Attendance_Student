@@ -8,20 +8,64 @@ import '../Common_Widgets/rounded_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import '../Common_Widgets/SetImage.dart';
-import '../constants.dart';
+import 'package:students/constants.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert' as convert;
 
 class LoginScreen extends StatelessWidget {
   TextEditingController studentIDController = new TextEditingController();
   TextEditingController passwordController = new TextEditingController();
   static var client;
-  static StudentMQTT MQTTObj = new StudentMQTT();
+  MQTTManager MQTTObj = new MQTTManager();
   bool clicked = false;
 
+  Future<bool> authentiacateStudentREST(
+      String username, String password) async {
+    // Future<AttendanceModel> getData() async {
+    final response = await http.post(
+      Uri.parse('https://beta.masterofthings.com/GetAppReadingValueList'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode({
+        "AppId": 48,
+        "Limit": 10,
+        "ConditionList": [
+          {"Reading": "st_id", "Condition": "e", "Value": username},
+          {"Reading": "password", "Condition": "e", "Value": password}
+        ],
+        "Auth": {"Key": "AwMzRcL02j462kSP1624464934559student"},
+      }),
+    );
+    if (response.statusCode == 200) {
+      var res = {};
+      res["Result"] = convert.jsonDecode(response.body)["Result"];
+      if (res["Result"].length > 0) {
+        trackId = res["Result"][0]["track_id"];
+        print("trackID: " + trackId);
+        return true;
+      }
+      return false;
+    } else {
+      return false;
+    }
+  }
+
   Future<void> authentiacateStudent(String username, String password) async {
-    if (!clicked){ client = await MQTTObj.getClient(); clicked=true;}
-    var payload = {"username":username, "password": password};
-    print(TOPIC+"login_pub");
-    MQTTObj.publishMessage(client, jsonEncode(payload), TOPIC+"login_pub");
+    if (!clicked) {
+      client = await MQTTObj.getClient();
+      clicked = true;
+    }
+    MQTTObj.listeningToSub(client, "/login/1/sub");
+    // MQTTObj.subscribeToTopic(client, "${TOPIC}/login/1/sub");
+    // MQTTObj.onConnected(client);
+    // var payload = {"username": username, "password": password};
+    // MQTTObj.publishMessage(client, jsonEncode(payload), "${TOPIC}/login_pub");
+
+    // MQTTObj.subscribeToTopic(client, "${TOPIC}/schedule/${globalUserID}/sub");
+    // MQTTObj.subscribeToTopic(client, "${TOPIC}/attendance/${globalUserID}/sub");
+
+    // MQTTObj.listenToSubTopic(client);
   }
 
   @override
@@ -82,9 +126,21 @@ class LoginScreen extends StatelessWidget {
               onPressed: () {
                 String id = studentIDController.text;
                 String password = passwordController.text;
-                  authentiacateStudent(id, password);
-                if (true) {
-                  constants.globalUserID=id.toLowerCase();
+
+                // authentiacateStudentREST(id, password);
+                // authentiacateStudent(id, password);
+                authentiacateStudentREST(id, password).then((value) {
+                  print("WTF IS THIS VALUE:");
+                  print(value);
+                  if (value) {
+                    globalUserID = id.toLowerCase();
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (context) => mainPage()));
+                  }
+                });
+
+                if (id == 1243374687365487) {
+                  globalUserID = id.toLowerCase();
                   Navigator.pushReplacement(context,
                       MaterialPageRoute(builder: (context) => mainPage()));
                 }
