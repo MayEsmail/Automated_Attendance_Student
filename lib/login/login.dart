@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:students/MQTT/MQTTManager.dart';
 import 'package:students/login/rounded_container.dart';
-import 'package:students/login/rounded_container.dart';
 import '../mainPage.dart';
 import '../Common_Widgets/rounded_button.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -15,7 +14,6 @@ class LoginScreen extends StatelessWidget {
   TextEditingController studentIDController = new TextEditingController();
   TextEditingController passwordController = new TextEditingController();
   static var client;
-  static String globalUserID='';
   StudentMQTT MQTTObj = new StudentMQTT();
   bool clicked = false;
 
@@ -86,7 +84,7 @@ class LoginScreen extends StatelessWidget {
                 String password = passwordController.text;
                   authentiacateStudent(id, password);
                 if (id.toLowerCase() == "1" && password == "1") {
-                  globalUserID=id;
+                  constants.globalUserID=id.toLowerCase();
                   Navigator.pushReplacement(context,
                       MaterialPageRoute(builder: (context) => mainPage()));
                 }

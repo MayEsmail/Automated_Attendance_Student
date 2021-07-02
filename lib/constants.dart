@@ -6,3 +6,6 @@ const String TOPIC = "iti/2021/AutomatedAttendance/",
     USERNAME = "iti2021_projects",
     PASSWORD = "iti2021_projects";
 const int PORT = 1883;
+class constants{
+    static String globalUserID='';
+}
