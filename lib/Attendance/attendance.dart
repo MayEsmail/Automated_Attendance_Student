@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
@@ -14,9 +15,40 @@ class Attendance extends StatefulWidget {
 }
 
 class AttendanceState extends State<Attendance> {
-  late List dummyData = [
+  List dummyData = [
     {"title": "", "id": ""}
   ];
+
+  Future<bool> getSchedule() async {
+    // Future<AttendanceModel> getData() async {
+    final response = await http.post(
+      Uri.parse('https://beta.masterofthings.com/GetAppReadingValueList'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode({
+        "AppId": 49,
+        "ConditionList": [
+          {"Reading": "track", "Condition": "e", "Value": trackId},
+        ],
+        "Auth": {"Key": "2cbTYJUc1hN0zWGe1624465017336attendance"},
+      }),
+    );
+    if (response.statusCode == 200) {
+      var res = {};
+      res["Result"] = convert.jsonDecode(response.body)["Result"];
+      if (res["Result"].length > 0) {
+        dummyData = res["Result"];
+        // trackId = res["Result"][0]["track_id"];
+        print(dummyData);
+        return true;
+      }
+      return false;
+    } else {
+      return false;
+    }
+  }
+
   // late Future<AttendanceModel> data;
   Future<String> getData() async {
     // Future<AttendanceModel> getData() async {
@@ -28,7 +60,7 @@ class AttendanceState extends State<Attendance> {
       // then parse the JSON.
       this.setState(() {
         dummyData = convert.jsonDecode(response.body);
-        print(dummyData);
+        // print(dummyData);
       });
       // print(data[1]["title"]);
       return "Success!";
@@ -49,10 +81,10 @@ class AttendanceState extends State<Attendance> {
 
   @override
   Widget build(BuildContext context) {
-    MQTTManager MQTTObj = new MQTTManager();
+    // MQTTManager MQTTObj = new MQTTManager();
 
-    MQTTObj.publishMessage(
-        LoginScreen.client, globalUserID, TOPIC + "attendance_pub");
+    // MQTTObj.publishMessage(
+    //     LoginScreen.client, globalUserID, TOPIC + "attendance_pub");
     return Column(
       children: [
         Container(
