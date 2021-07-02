@@ -38,6 +38,7 @@ class StudentMQTT {
     builder.addString(Uri.encodeComponent(message));
     client.publishMessage(topic, MqttQos.atMostOnce, builder.payload!);
   }
+  
 }
 
 Future<MqttServerClient> myConnect() async {

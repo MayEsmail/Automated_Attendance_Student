@@ -2,6 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
+import 'package:students/login/login.dart';
+
+import '../constants.dart';
 // import 'AttendanceModel.dart';
 
 class Attendance extends StatefulWidget {
@@ -14,11 +17,9 @@ class AttendanceState extends State<Attendance> {
     {"title": "", "id": ""}
   ];
   // late Future<AttendanceModel> data;
-
   Future<String> getData() async {
     // Future<AttendanceModel> getData() async {
-    final response = await http
-        .get(Uri.parse("https://jsonplaceholder.typicode.com/albums"));
+    final response = await http.get(Uri.parse("https://jsonplaceholder.typicode.com/albums"));
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
@@ -46,6 +47,7 @@ class AttendanceState extends State<Attendance> {
 
   @override
   Widget build(BuildContext context) {
+    LoginScreen.MQTTObj.publishMessage(LoginScreen.client, constants.globalUserID, TOPIC+"attendance_pub");
     return Column(
       children: [
         Container(

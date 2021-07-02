@@ -14,7 +14,7 @@ class LoginScreen extends StatelessWidget {
   TextEditingController studentIDController = new TextEditingController();
   TextEditingController passwordController = new TextEditingController();
   static var client;
-  StudentMQTT MQTTObj = new StudentMQTT();
+  static StudentMQTT MQTTObj = new StudentMQTT();
   bool clicked = false;
 
   Future<void> authentiacateStudent(String username, String password) async {
@@ -83,7 +83,7 @@ class LoginScreen extends StatelessWidget {
                 String id = studentIDController.text;
                 String password = passwordController.text;
                   authentiacateStudent(id, password);
-                if (id.toLowerCase() == "1" && password == "1") {
+                if (true) {
                   constants.globalUserID=id.toLowerCase();
                   Navigator.pushReplacement(context,
                       MaterialPageRoute(builder: (context) => mainPage()));

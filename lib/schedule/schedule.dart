@@ -1,4 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:students/MQTT/MQTTManager.dart';
+import 'package:students/login/login.dart';
+import 'package:students/login/login.dart';
 import 'Lecture.dart';
 import '../constants.dart';
 
@@ -15,6 +20,7 @@ class Schedule extends StatelessWidget {
       'Friday'
     ];
     Size size = MediaQuery.of(context).size;
+    LoginScreen.MQTTObj.publishMessage(LoginScreen.client, constants.globalUserID, TOPIC+"schedule_pub");
     return Container(
       margin: EdgeInsets.symmetric(vertical: 20),
       child: (GridView.count(
