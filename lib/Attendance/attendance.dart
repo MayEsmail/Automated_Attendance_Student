@@ -15,12 +15,14 @@ class Attendance extends StatefulWidget {
 }
 
 class AttendanceState extends State<Attendance> {
+  var attendance = new Map();
+  var mapKeys = {};
   List dummyData = [
     {"title": "", "id": ""}
   ];
 
-  Future<bool> getSchedule() async {
-    // Future<AttendanceModel> getData() async {
+  Future<bool> getAttendance() async {
+    print("SEND IT " + trackId);
     final response = await http.post(
       Uri.parse('https://beta.masterofthings.com/GetAppReadingValueList'),
       headers: <String, String>{
@@ -29,7 +31,8 @@ class AttendanceState extends State<Attendance> {
       body: jsonEncode({
         "AppId": 49,
         "ConditionList": [
-          {"Reading": "track", "Condition": "e", "Value": trackId},
+          {"Reading": "st_id", "Condition": "e", "Value": globalUserID},
+          {"Reading": "course", "Condition": "m", "Value": null}
         ],
         "Auth": {"Key": "2cbTYJUc1hN0zWGe1624465017336attendance"},
       }),
@@ -38,9 +41,19 @@ class AttendanceState extends State<Attendance> {
       var res = {};
       res["Result"] = convert.jsonDecode(response.body)["Result"];
       if (res["Result"].length > 0) {
-        dummyData = res["Result"];
-        // trackId = res["Result"][0]["track_id"];
-        print(dummyData);
+        for (int i = 0; i < res["Result"].length; i++) {
+          if (attendance.containsKey(res["Result"][i]["course"])) {
+            attendance[res["Result"][i]["course"]][0] +=
+                res["Result"][i]["percent"];
+            attendance[res["Result"][i]["course"]][1]++;
+          } else
+            attendance[res["Result"][i]["course"]] = [
+              res["Result"][i]["percent"],
+              1
+            ];
+        }
+        // dummyData = res["Result"];
+        print(attendance);
         return true;
       }
       return false;
@@ -77,6 +90,7 @@ class AttendanceState extends State<Attendance> {
     super.initState();
     // this.data = this.getData();
     this.getData();
+    this.getAttendance();
   }
 
   @override
@@ -145,7 +159,7 @@ class AttendanceState extends State<Attendance> {
         Expanded(
           child: ListView.builder(
             // ignore: unnecessary_null_comparison
-            itemCount: dummyData == null ? 0 : dummyData.length,
+            itemCount: attendance == null ? 0 : attendance.length,
             itemBuilder: (BuildContext context, int index) {
               return new Card(
                 child: Padding(
@@ -153,7 +167,7 @@ class AttendanceState extends State<Attendance> {
                   child: Row(
                     children: [
                       Expanded(
-                        child: Text(dummyData[index]["title"],
+                        child: Text(attendance.keys.toList()[index],
                             style: TextStyle(
                                 // fontWeight: FontWeight.bold,
                                 )),
@@ -161,7 +175,12 @@ class AttendanceState extends State<Attendance> {
                       Spacer(),
                       Padding(
                         padding: const EdgeInsets.only(right: 30.0),
-                        child: Text(dummyData[index]["id"].toString() + "%",
+                        child: Text(
+                            (attendance[attendance.keys.toList()[index]][0] /
+                                        attendance[
+                                            attendance.keys.toList()[index]][1])
+                                    .toStringAsFixed(1) +
+                                "%",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                             )),
