@@ -6,7 +6,14 @@ import 'package:students/constants.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 
+// {
+// date: {from:{}, from:{}, from:{}},
+// date: {from:{}, from:{}, from:{}},
+// date: {from:{}, from:{}, from:{}},
+// }
 class Schedule extends StatelessWidget {
+  var scheduleMap = new Map();
+
   Future<bool> getSchedule() async {
     // Future<AttendanceModel> getData() async {
     final response = await http.post(
@@ -27,8 +34,17 @@ class Schedule extends StatelessWidget {
       res["Result"] = convert.jsonDecode(response.body)["Result"];
       if (res["Result"].length > 0) {
         dummyData = res["Result"];
-        // trackId = res["Result"][0]["track_id"];
-        print(dummyData);
+        for (int i = 0; i < res["Result"].length; i++) {
+          var sessionObj = dummyData[i]["from"];
+          if (scheduleMap.containsKey(dummyData[i]["date"])) {
+            var tempMap = scheduleMap[dummyData[i]["date"]];
+            tempMap[sessionObj] = dummyData[i];
+            scheduleMap[dummyData[i]["date"]] = tempMap;
+          } else {
+            scheduleMap[dummyData[i]["date"]] = {sessionObj: dummyData[i]};
+          }
+        }
+        print(scheduleMap);
         return true;
       }
       return false;
