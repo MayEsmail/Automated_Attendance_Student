@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:students/MQTT/mqttFinal.dart';
-import 'package:students/widgets/home/home.dart';
 import '../Common_Widgets/rounded_button.dart';
 import 'package:students/constants.dart';
 
@@ -31,7 +30,6 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       scanning_enabled = !scanning_enabled;
     });
-    print("WOW I;M IN HOME");
     MqttServerClient client = await MQTTObj.getClient();
     FlutterBlue flutterBlue = FlutterBlue.instance;
     if (scanning_enabled) {
@@ -189,41 +187,41 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// class Scanning_Info extends StatelessWidget {
-//   const Scanning_Info(
-//       {Key? key,
-//       required this.icon,
-//       required this.color,
-//       required this.activity})
-//       : super(key: key);
-//   final icon;
-//   final color;
-//   final activity;
-//   @override
-//   Widget build(BuildContext context) {
-//     return Flexible(
-//       child: Row(
-//         children: [
-//           Padding(
-//             padding: const EdgeInsets.all(8.0),
-//             child: Icon(
-//               icon,
-//               size: 60,
-//               color: color,
-//             ),
-//           ),
-//           Flexible(
-//             child: Text(
-//               activity,
-//               textAlign: TextAlign.left,
-//               style: TextStyle(
-//                   fontSize: 25,
-//                   color: Colors.black,
-//                   fontWeight: FontWeight.normal),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
+class Scanning_Info extends StatelessWidget {
+  const Scanning_Info(
+      {Key? key,
+      required this.icon,
+      required this.color,
+      required this.activity})
+      : super(key: key);
+  final icon;
+  final color;
+  final activity;
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              icon,
+              size: 60,
+              color: color,
+            ),
+          ),
+          Flexible(
+            child: Text(
+              activity,
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                  fontSize: 25,
+                  color: Colors.black,
+                  fontWeight: FontWeight.normal),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
