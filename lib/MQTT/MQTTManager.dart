@@ -2,21 +2,9 @@ import 'dart:convert';
 
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
-
-const String TOPIC = "iti/2021/AutomatedAttendance/mobile",
-    BROKER = "beta.masterofthings.com",
-    USERNAME = "iti2021_projects",
-    PASSWORD = "iti2021_projects";
-const int PORT = 1883;
+import 'package:students/constants.dart';
 
 class StudentMQTT {
-  // var _client = null;
-  // Future<MqttServerClient> getClientInstance() async {
-  //   if (_client == null) _client = await _getClient() as MqttServerClient;
-  //   print(_client);
-  //   return _client;
-  // }
-
   Future<MqttServerClient> getClient() async {
     MqttServerClient client =
         MqttServerClient.withPort(BROKER, 'flutter_client', PORT);
@@ -37,10 +25,10 @@ class StudentMQTT {
     return client;
   }
 
-  void publishMessage(MqttServerClient client, String message) {
+  void publishMessage(MqttServerClient client, String message, String topic) {
     final builder = MqttClientPayloadBuilder();
     builder.addString(Uri.encodeComponent(message));
-    client.publishMessage(TOPIC, MqttQos.atMostOnce, builder.payload!);
+    client.publishMessage(topic, MqttQos.atMostOnce, builder.payload!);
   }
 }
 
