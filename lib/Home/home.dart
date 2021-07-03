@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:students/MQTT/MQTTManager.dart';
 import 'package:students/login/login.dart';
 import '../Common_Widgets/rounded_button.dart';
@@ -20,8 +21,32 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
+
 class _HomePageState extends State<HomePage> {
   // static var client;
+  FlutterBlue flutterBlue = FlutterBlue.instance;
+    Future<bool> _checkDeviceBluetoothIsOn() async {
+        return (await flutterBlue.isOn);
+    }
+    Future<bool> _checkDeviceLocationIsOn() async {
+      return(await Permission.locationWhenInUse.serviceStatus.isEnabled);
+    }
+
+   ShowBluetoothDialog(BuildContext context){
+    return showDialog(context: context, builder: (context){
+      return AlertDialog(
+          content: Text("Bluetooth is off, Please turn it on to take your attendance!"),
+          actions: <Widget>[
+            TextButton(
+              onPressed:(){
+                Navigator.of(context).pop();
+              }
+            , child: Text('OK'),)
+          ],
+      );
+    });
+  }
+
   bool scanning_enabled = false;
   List myBeacons = ['AC:23:3F:2C:D2:D6', 'AC:23:3F:2C:D2:B8'];
   MQTTManager MQTTObj = new MQTTManager();
@@ -32,7 +57,7 @@ class _HomePageState extends State<HomePage> {
   ];
   Future<bool> getSessionData() async {
     DateTime dateToday =
-        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
 
     String currentDate = dateToday.toString().split(" ")[0];
     int currHour = DateTime.now().hour, currMinute = DateTime.now().minute;
@@ -84,13 +109,13 @@ class _HomePageState extends State<HomePage> {
 
   var timer;
   Future<void> scanningToggler() async {
+    
     if (mounted) {
       setState(() {
         scanning_enabled = !scanning_enabled;
       });
     }
     // client = await MQTTObj.getClient();
-    FlutterBlue flutterBlue = FlutterBlue.instance;
     if (scanning_enabled) {
       print('Scanning...');
       // Start scanning
@@ -165,7 +190,30 @@ class _HomePageState extends State<HomePage> {
             width: 200.0,
             child: RoundedButton(
               text: scanning_enabled ? 'Turn off' : 'Turn on',
-              onPressed: scanningToggler,
+              onPressed: (){
+                _checkDeviceBluetoothIsOn().then((value)=>{
+                  if(value){
+                   scanningToggler()}
+                   else{
+                     if(!scanning_enabled){
+                     showDialog(context: context, builder: (context){
+                      return AlertDialog(
+                          content: Text("Bluetooth is off, Please turn it on to take your attendance!"),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed:(){
+                                Navigator.of(context).pop();
+                              }
+                            , child: Text('OK'),)
+                          ],
+                      );
+                    })
+                   }
+                   else scanningToggler()
+                  }
+});
+                
+              },
               color: Colors.grey[700],
               splash: kPrimaryColor,
             ),
@@ -260,6 +308,9 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+}
+
+class AwesomeDialog {
 }
 
 class Scanning_Info extends StatelessWidget {
