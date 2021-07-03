@@ -5,7 +5,6 @@ import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
 
 import '../constants.dart';
-// import 'AttendanceModel.dart';
 
 class Attendance extends StatefulWidget {
   @override
@@ -20,7 +19,6 @@ class AttendanceState extends State<Attendance> {
   ];
 
   Future<bool> getAttendance() async {
-    print("SEND IT " + trackId);
     try {
       final response = await http.post(
         Uri.parse('https://beta.masterofthings.com/GetAppReadingValueList'),
@@ -60,7 +58,6 @@ class AttendanceState extends State<Attendance> {
               }
             }
           }
-          // dummyData = res["Result"];
           print(attendance);
           return true;
         }
@@ -82,17 +79,12 @@ class AttendanceState extends State<Attendance> {
 
   @override
   Widget build(BuildContext context) {
-    // MQTTManager MQTTObj = new MQTTManager();
-
-    // MQTTObj.publishMessage(
-    //     LoginScreen.client, globalUserID, TOPIC + "attendance_pub");
     return Column(
       children: [
         Container(
           padding: const EdgeInsets.all(5),
           color: Colors.grey[800],
           child: ListTile(
-            // leading: Text('ID'),
             title: Text('Course',
                 style: TextStyle(
                   color: Colors.white,
@@ -105,44 +97,6 @@ class AttendanceState extends State<Attendance> {
                 )),
           ),
         ),
-        // FutureBuilder<AttendanceModel>(
-        //   future: data,
-        //   builder: (context, snapshot) {
-        //     while (snapshot.hasData) {
-        //       print(snapshot.data);
-        //       return new Card(
-        //         child: Padding(
-        //           padding: const EdgeInsets.all(8.0),
-        //           child: Row(
-        //             children: [
-        //               Expanded(
-        //                 child: Text(snapshot.data!.course,
-        //                     style: TextStyle(
-        //                         // fontWeight: FontWeight.bold,
-        //                         )),
-        //               ),
-        //               Spacer(),
-        //               Padding(
-        //                 padding: const EdgeInsets.only(right: 30.0),
-        //                 child: Text(snapshot.data!.percentage.toString(),
-        //                     style: TextStyle(
-        //                       fontWeight: FontWeight.bold,
-        //                     )),
-        //               ),
-        //             ],
-        //           ),
-        //         ),
-        //       );
-        //       // Text(snapshot.data!.course);
-        //     }
-        //     // else if (snapshot.hasError) {
-        //     //   return Text("${snapshot.error}");
-        //     // }
-
-        //     // By default, show a loading spinner.
-        //     return CircularProgressIndicator();
-        //   },
-        // ),
         Expanded(
           child: ListView.builder(
             // ignore: unnecessary_null_comparison

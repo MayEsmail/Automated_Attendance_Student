@@ -18,7 +18,7 @@ class MQTTManager {
     try {
       await client.connect();
     } catch (e) {
-      print('[-] CANT CONNECT TO THIS CLIENT YA GMA3A\nException: $e');
+      print('[-] CANT CONNECT\nException: $e');
       client.disconnect();
     }
 
@@ -49,9 +49,6 @@ class MQTTManager {
   void subscribeToTopic(MqttServerClient client, String topic) {
     print("Subscriped to topic" + topic);
     client.subscribe(topic, MqttQos.atMostOnce);
-    // client.updates!.listen((List<MqttReceivedMessage<MqttMessage>> c) {
-    //   print('Received message');
-    // });
   }
 
   void listenToSubTopic(MqttServerClient client) {
@@ -64,7 +61,6 @@ class MQTTManager {
 
   void listenOnPublished(MqttServerClient client) {
     client.published!.listen((MqttPublishMessage message) {
-      print("RECIECED MESSAGE KMA YNB8Y");
       print(message);
     });
   }
@@ -73,19 +69,10 @@ class MQTTManager {
     if (client.connectionStatus!.state == MqttConnectionState.connected) {
       print('EMQX client connected');
       client.updates!.listen((List<MqttReceivedMessage<MqttMessage>> c) {
-        print('ANA GOWA LINE 61');
-
-        // final MqttPublishMessage message = c[0].payload;
-        // final payload =
-        //     MqttPublishPayload.bytesToStringAsString(message.payload.message);
-
         print('Received message:${c[0].payload} from topic: ${c[0].topic}>');
       });
 
       client.published!.listen((MqttPublishMessage message) {
-        print('ANA GOWA LINE 71');
-        // final payload =
-        //     MqttPublishPayload.bytesToStringAsString(message.payload.message);
         print(
             'Published message: ${message.payload} to topic: ${message.variableHeader!.topicName}');
       });

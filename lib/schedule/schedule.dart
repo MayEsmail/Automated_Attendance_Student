@@ -6,11 +6,6 @@ import 'package:students/constants.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 
-// {
-// date: {from:{}, from:{}, from:{}},
-// date: {from:{}, from:{}, from:{}},
-// date: {from:{}, from:{}, from:{}},
-// }
 class Schedule extends StatefulWidget {
   @override
   _ScheduleState createState() => _ScheduleState();
@@ -20,7 +15,6 @@ class _ScheduleState extends State<Schedule> {
   var scheduleMap = new Map();
 
   Future<bool> getSchedule() async {
-    // Future<AttendanceModel> getData() async {
     final response = await http.post(
       Uri.parse('https://beta.masterofthings.com/GetAppReadingValueList'),
       headers: <String, String>{
@@ -38,7 +32,6 @@ class _ScheduleState extends State<Schedule> {
       var res = {};
       res["Result"] = convert.jsonDecode(response.body)["Result"];
       if (res["Result"].length > 0) {
-        // this.setState(() {
         dummyData = res["Result"];
         for (int i = 0; i < res["Result"].length; i++) {
           var sessionObj = dummyData[i]["from"];
@@ -58,8 +51,6 @@ class _ScheduleState extends State<Schedule> {
             }
           }
         }
-        // });
-        // print(scheduleMap);
         return true;
       }
       return false;
@@ -101,7 +92,6 @@ class _ScheduleState extends State<Schedule> {
     Size size = MediaQuery.of(context).size;
     var scheduleSortedKeys = scheduleMap.keys.toList()..sort();
     print(scheduleSortedKeys);
-    // getSchedule();
     print(scheduleMap);
     return Container(
       margin: EdgeInsets.symmetric(vertical: 20),

@@ -66,8 +66,6 @@ class _HomePageState extends State<HomePage> {
     String currentDate = dateToday.toString().split(" ")[0];
     int currHour = DateTime.now().hour, currMinute = DateTime.now().minute;
     double currTime = currHour + currMinute / 60;
-    print("YOU CALLED ME");
-    print(currTime);
     try {
       final response = await http.post(
         Uri.parse('https://beta.masterofthings.com/GetAppReadingValueList'),
@@ -96,7 +94,6 @@ class _HomePageState extends State<HomePage> {
                   curSessionInfo = dummyData[i];
                 });
               }
-              print(curSessionInfo);
             }
           }
           return true;
@@ -118,7 +115,6 @@ class _HomePageState extends State<HomePage> {
         scanning_enabled = !scanning_enabled;
       });
     }
-    // client = await MQTTObj.getClient();
     if (scanning_enabled) {
       print('Scanning...');
       // Start scanning
@@ -142,7 +138,6 @@ class _HomePageState extends State<HomePage> {
               lastSendingMinute = now.minute;
               var payload = {};
               payload["beacons"] = [];
-              // var  payload2 = {"beacons": 1, "asd":2};
               readings.forEach((k, v) {
                 //k is beacon name, v is the list of values
                 var mean = v.reduce((a, b) => a + b) / v.length;
