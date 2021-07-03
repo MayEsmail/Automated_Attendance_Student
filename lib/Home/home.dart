@@ -21,30 +21,34 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-
 class _HomePageState extends State<HomePage> {
   // static var client;
   FlutterBlue flutterBlue = FlutterBlue.instance;
-    Future<bool> _checkDeviceBluetoothIsOn() async {
-        return (await flutterBlue.isOn);
-    }
-    Future<bool> _checkDeviceLocationIsOn() async {
-      return(await Permission.locationWhenInUse.serviceStatus.isEnabled);
-    }
+  Future<bool> _checkDeviceBluetoothIsOn() async {
+    return (await flutterBlue.isOn);
+  }
 
-   ShowBluetoothDialog(BuildContext context){
-    return showDialog(context: context, builder: (context){
-      return AlertDialog(
-          content: Text("Bluetooth is off, Please turn it on to take your attendance!"),
-          actions: <Widget>[
-            TextButton(
-              onPressed:(){
-                Navigator.of(context).pop();
-              }
-            , child: Text('OK'),)
-          ],
-      );
-    });
+  Future<bool> _checkDeviceLocationIsOn() async {
+    return (await Permission.locationWhenInUse.serviceStatus.isEnabled);
+  }
+
+  ShowBluetoothDialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Text(
+                "Bluetooth is off, Please turn it on to take your attendance!"),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              )
+            ],
+          );
+        });
   }
 
   bool scanning_enabled = false;
@@ -57,7 +61,7 @@ class _HomePageState extends State<HomePage> {
   ];
   Future<bool> getSessionData() async {
     DateTime dateToday =
-    DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
 
     String currentDate = dateToday.toString().split(" ")[0];
     int currHour = DateTime.now().hour, currMinute = DateTime.now().minute;
@@ -86,7 +90,7 @@ class _HomePageState extends State<HomePage> {
           dummyData = res["Result"];
           for (int i = 0; i < dummyData.length; i++) {
             // print(dummyData[i]);
-            if (13 >= dummyData[i]["from"] && 13 <= dummyData[i]["to"]) {
+            if (13 >= dummyData[i]["from"] - .2 && 13 <= dummyData[i]["to"]) {
               if (mounted) {
                 this.setState(() {
                   curSessionInfo = dummyData[i];
@@ -109,7 +113,6 @@ class _HomePageState extends State<HomePage> {
 
   var timer;
   Future<void> scanningToggler() async {
-    
     if (mounted) {
       setState(() {
         scanning_enabled = !scanning_enabled;
@@ -135,7 +138,7 @@ class _HomePageState extends State<HomePage> {
             }
             now = DateTime.now();
             // print(readings);
-            if (now.minute % 1 == 0 && now.minute != lastSendingMinute) {
+            if (now.minute % 5 == 0 && now.minute != lastSendingMinute) {
               lastSendingMinute = now.minute;
               var payload = {};
               payload["beacons"] = [];
@@ -190,29 +193,35 @@ class _HomePageState extends State<HomePage> {
             width: 200.0,
             child: RoundedButton(
               text: scanning_enabled ? 'Turn off' : 'Turn on',
-              onPressed: (){
-                _checkDeviceBluetoothIsOn().then((value)=>{
-                  if(value){
-                   scanningToggler()}
-                   else{
-                     if(!scanning_enabled){
-                     showDialog(context: context, builder: (context){
-                      return AlertDialog(
-                          content: Text("Bluetooth is off, Please turn it on to take your attendance!"),
-                          actions: <Widget>[
-                            TextButton(
-                              onPressed:(){
-                                Navigator.of(context).pop();
-                              }
-                            , child: Text('OK'),)
-                          ],
-                      );
-                    })
-                   }
-                   else scanningToggler()
-                  }
-});
-                
+              onPressed: () {
+                _checkDeviceBluetoothIsOn().then((value) => {
+                      if (value)
+                        {scanningToggler()}
+                      else
+                        {
+                          if (!scanning_enabled)
+                            {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      content: Text(
+                                          "Bluetooth is off, Please turn it on to take your attendance!"),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Text('OK'),
+                                        )
+                                      ],
+                                    );
+                                  })
+                            }
+                          else
+                            scanningToggler()
+                        }
+                    });
               },
               color: Colors.grey[700],
               splash: kPrimaryColor,
@@ -249,36 +258,44 @@ class _HomePageState extends State<HomePage> {
                   color: Colors.green,
                 ),
                 Flexible(
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Course' + ": ${curSessionInfo["course"]}",
-                          textAlign: TextAlign.left,
-                          style: customTextStyle,
+                  child: curSessionInfo.length > 0
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                              Text(
+                                'Course' + ": ${curSessionInfo["course"]}",
+                                textAlign: TextAlign.left,
+                                style: customTextStyle,
+                              ),
+                              Text(
+                                'Instructor' +
+                                    ": ${curSessionInfo["instructor_name"]}",
+                                style: customTextStyle,
+                              ),
+                              Text(
+                                'Room' + ": ${curSessionInfo["room"]}",
+                                style: customTextStyle,
+                              ),
+                              Text(
+                                'Floor' + ": ${curSessionInfo["floor"]}",
+                                style: customTextStyle,
+                              ),
+                              Text(
+                                'From' + ": ${curSessionInfo["from"]}",
+                                style: customTextStyle,
+                              ),
+                              Text(
+                                'To' + ": ${curSessionInfo["to"]}",
+                                style: customTextStyle,
+                              ),
+                            ])
+                      : Padding(
+                          padding: const EdgeInsets.all(40.0),
+                          child: Container(
+                              child: Center(
+                            child: CircularProgressIndicator(),
+                          )),
                         ),
-                        Text(
-                          'Instructor' +
-                              ": ${curSessionInfo["instructor_name"]}",
-                          style: customTextStyle,
-                        ),
-                        Text(
-                          'Room' + ": ${curSessionInfo["room"]}",
-                          style: customTextStyle,
-                        ),
-                        Text(
-                          'Floor' + ": ${curSessionInfo["floor"]}",
-                          style: customTextStyle,
-                        ),
-                        Text(
-                          'From' + ": ${curSessionInfo["from"]}",
-                          style: customTextStyle,
-                        ),
-                        Text(
-                          'To' + ": ${curSessionInfo["to"]}",
-                          style: customTextStyle,
-                        ),
-                      ]),
                 )
               ],
             ),
@@ -310,8 +327,7 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class AwesomeDialog {
-}
+class AwesomeDialog {}
 
 class Scanning_Info extends StatelessWidget {
   const Scanning_Info(
