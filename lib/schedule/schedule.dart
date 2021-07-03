@@ -11,7 +11,12 @@ import 'dart:convert' as convert;
 // date: {from:{}, from:{}, from:{}},
 // date: {from:{}, from:{}, from:{}},
 // }
-class Schedule extends StatelessWidget {
+class Schedule extends StatefulWidget {
+  @override
+  _ScheduleState createState() => _ScheduleState();
+}
+
+class _ScheduleState extends State<Schedule> {
   var scheduleMap = new Map();
 
   Future<bool> getSchedule() async {
@@ -33,18 +38,28 @@ class Schedule extends StatelessWidget {
       var res = {};
       res["Result"] = convert.jsonDecode(response.body)["Result"];
       if (res["Result"].length > 0) {
+        // this.setState(() {
         dummyData = res["Result"];
         for (int i = 0; i < res["Result"].length; i++) {
           var sessionObj = dummyData[i]["from"];
           if (scheduleMap.containsKey(dummyData[i]["date"])) {
             var tempMap = scheduleMap[dummyData[i]["date"]];
             tempMap[sessionObj] = dummyData[i];
-            scheduleMap[dummyData[i]["date"]] = tempMap;
+            if (mounted) {
+              this.setState(() {
+                scheduleMap[dummyData[i]["date"]] = tempMap;
+              });
+            }
           } else {
-            scheduleMap[dummyData[i]["date"]] = {sessionObj: dummyData[i]};
+            if (mounted) {
+              this.setState(() {
+                scheduleMap[dummyData[i]["date"]] = {sessionObj: dummyData[i]};
+              });
+            }
           }
         }
-        print(scheduleMap);
+        // });
+        // print(scheduleMap);
         return true;
       }
       return false;
@@ -66,25 +81,38 @@ class Schedule extends StatelessWidget {
   ];
 
   var days = [
-    'Saturday',
-    'Sunday',
     'Monday',
     'Tuesday',
     'Widnesday',
     'Thrusday',
-    'Friday'
+    'Friday',
+    'Saturday',
+    'Sunday'
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    this.getSchedule();
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    getSchedule();
+    var scheduleSortedKeys = scheduleMap.keys.toList()..sort();
+    print(scheduleSortedKeys);
+    // getSchedule();
+    print(scheduleMap);
     return Container(
       margin: EdgeInsets.symmetric(vertical: 20),
       child: (GridView.count(
           crossAxisCount: 2,
           childAspectRatio: ((size.width / 2) / 255),
           scrollDirection: Axis.vertical,
-          children: List.generate(dummyData.length + 1, (index) {
+          children: List.generate(scheduleMap.keys.length, (index) {
+            var day = scheduleMap[scheduleSortedKeys[index]];
+            var sortedKeys = day.keys.toList()..sort();
+            var course;
             return Container(
               margin: EdgeInsets.all(10),
               decoration: BoxDecoration(
@@ -95,42 +123,53 @@ class Schedule extends StatelessWidget {
                 children: <Widget>[
                   Center(
                       child: Text(
-                    days[index % 7] + ' 12-12-2021',
+                    days[DateTime.parse(scheduleSortedKeys[index].toString())
+                                    .weekday -
+                                1]
+                            .toString() +
+                        " " +
+                        scheduleSortedKeys[index].toString(),
                     style: TextStyle(fontWeight: FontWeight.w600),
                   )),
                   SizedBox(
                     height: 5,
                   ),
-                  Lecture(
-                    lectureName: Text(
-                      'Introduction to programming',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                  for (int i = 0; i < sortedKeys.length; i++)
+                    Lecture(
+                      lectureName: Text(
+                        day[sortedKeys[i]]["course"] +
+                            ' [${day[sortedKeys[i]]["from"]} - ${day[sortedKeys[i]]["to"]}]',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
-                  ),
-                  Lecture(
-                    lectureName: Text(
-                      'C programming Language',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  Lecture(
-                    lectureName: Text(
-                      'Big data analytics platforms using Hadoop',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
+                  //   day.keys.length > 0
+                  //       ? Lecture(
+                  //           lectureName: Text(
+                  //             day[sortedKeys[1]]["course"],
+                  //             style: TextStyle(
+                  //               color: Colors.white,
+                  //               fontSize: 16,
+                  //               fontWeight: FontWeight.w600,
+                  //             ),
+                  //           ),
+                  //         )
+                  //       : Container(),
+                  //   day.keys.length > 1
+                  //       ? Lecture(
+                  //           lectureName: Text(
+                  //             day[sortedKeys[2]]["course"],
+                  //             style: TextStyle(
+                  //               color: Colors.white,
+                  //               fontSize: 16,
+                  //               fontWeight: FontWeight.w600,
+                  //             ),
+                  //           ),
+                  //         )
+                  //       : Container(),
                 ],
               ),
             );
