@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 
 class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
   final pageTitle;
-
+  final bool logStatus;
   @override
   final Size preferredSize;
 
-  CustomAppBar(this.pageTitle, this.preferredSize) : super();
+  CustomAppBar(this.pageTitle, this.preferredSize, this.logStatus) : super();
   @override
   Widget build(BuildContext context) {
     return AppBar(
@@ -31,6 +31,9 @@ class CustomAppBar extends StatelessWidget with PreferredSizeWidget {
                   style: TextStyle(
                     color: Colors.blueGrey,
                   ))),
+          Center(
+            child: this.logStatus ? null : null,
+          ),
         ],
       ),
     );

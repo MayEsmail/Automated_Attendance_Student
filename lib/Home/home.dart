@@ -9,6 +9,8 @@ import 'package:students/MQTT/MQTTManager.dart';
 import 'package:students/login/login.dart';
 import '../Common_Widgets/rounded_button.dart';
 import 'package:students/constants.dart';
+import 'dart:convert' as convert;
+import 'package:http/http.dart' as http;
 
 TextStyle customTextStyle =
     TextStyle(fontSize: 18, color: Colors.black, fontWeight: FontWeight.bold);
@@ -23,12 +25,70 @@ class _HomePageState extends State<HomePage> {
   bool scanning_enabled = false;
   List myBeacons = ['AC:23:3F:2C:D2:D6', 'AC:23:3F:2C:D2:B8'];
   MQTTManager MQTTObj = new MQTTManager();
+  var curSessionInfo = new Map();
+  var mapKeys = {};
+  List dummyData = [
+    {"title": "", "id": ""}
+  ];
+  Future<bool> getSessionData() async {
+    DateTime dateToday =
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
+    String currentDate = dateToday.toString().split(" ")[0];
+    int currHour = DateTime.now().hour, currMinute = DateTime.now().minute;
+    double currTime = currHour + currMinute / 60;
+    print("YOU CALLED ME");
+    print(currTime);
+    try {
+      final response = await http.post(
+        Uri.parse('https://beta.masterofthings.com/GetAppReadingValueList'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          "AppId": 64,
+          "ConditionList": [
+            {"Reading": "track", "Condition": "e", "Value": trackId},
+            {"Reading": "date", "Condition": "e", "Value": currentDate}
+          ],
+          "Auth": {"Key": "EGqZsciBhtw50o7o1625134162529schedule"},
+        }),
+      );
+      if (response.statusCode == 200) {
+        var res = {};
+        res["Result"] = convert.jsonDecode(response.body)["Result"];
+        if (res["Result"].length > 0) {
+          dummyData = res["Result"];
+          for (int i = 0; i < dummyData.length; i++) {
+            // print(dummyData[i]);
+            if (13 >= dummyData[i]["from"] && 13 <= dummyData[i]["to"]) {
+              if (mounted) {
+                this.setState(() {
+                  curSessionInfo = dummyData[i];
+                });
+              }
+              print(curSessionInfo);
+            }
+          }
+          return true;
+        }
+        // print(scheduleMap);
+        return false;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      return false;
+    }
+  }
 
   var timer;
   Future<void> scanningToggler() async {
-    setState(() {
-      scanning_enabled = !scanning_enabled;
-    });
+    if (mounted) {
+      setState(() {
+        scanning_enabled = !scanning_enabled;
+      });
+    }
     // client = await MQTTObj.getClient();
     FlutterBlue flutterBlue = FlutterBlue.instance;
     if (scanning_enabled) {
@@ -81,6 +141,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    getSessionData();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -130,41 +191,49 @@ class _HomePageState extends State<HomePage> {
                 fontWeight: FontWeight.bold),
           ),
           Padding(padding: const EdgeInsets.only(bottom: 20.0)),
-          Row(
-            children: [
-              Icon(
-                Icons.calendar_today_outlined,
-                size: 120,
-                color: Colors.green,
-              ),
-              Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                Text(
-                  'Subject',
-                  textAlign: TextAlign.left,
-                  style: customTextStyle,
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.calendar_today_outlined,
+                  size: 120,
+                  color: Colors.green,
                 ),
-                Text(
-                  'Instructor',
-                  style: customTextStyle,
-                ),
-                Text(
-                  'Room',
-                  style: customTextStyle,
-                ),
-                Text(
-                  'Floor',
-                  style: customTextStyle,
-                ),
-                Text(
-                  'From',
-                  style: customTextStyle,
-                ),
-                Text(
-                  'To',
-                  style: customTextStyle,
-                ),
-              ])
-            ],
+                Flexible(
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Course' + ": ${curSessionInfo["course"]}",
+                          textAlign: TextAlign.left,
+                          style: customTextStyle,
+                        ),
+                        Text(
+                          'Instructor' +
+                              ": ${curSessionInfo["instructor_name"]}",
+                          style: customTextStyle,
+                        ),
+                        Text(
+                          'Room' + ": ${curSessionInfo["room"]}",
+                          style: customTextStyle,
+                        ),
+                        Text(
+                          'Floor' + ": ${curSessionInfo["floor"]}",
+                          style: customTextStyle,
+                        ),
+                        Text(
+                          'From' + ": ${curSessionInfo["from"]}",
+                          style: customTextStyle,
+                        ),
+                        Text(
+                          'To' + ": ${curSessionInfo["to"]}",
+                          style: customTextStyle,
+                        ),
+                      ]),
+                )
+              ],
+            ),
           ),
           VerticalDivider(
             color: Colors.black,
@@ -177,7 +246,7 @@ class _HomePageState extends State<HomePage> {
             child: Align(
               alignment: Alignment.center,
               child: Text(
-                'You have attended 55 minutes out of 60 minutes',
+                '',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 20,

@@ -12,12 +12,20 @@ import 'package:students/constants.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 
-class LoginScreen extends StatelessWidget {
-  TextEditingController studentIDController = new TextEditingController();
-  TextEditingController passwordController = new TextEditingController();
+class LoginScreen extends StatefulWidget {
   static var client;
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  TextEditingController studentIDController = new TextEditingController();
+
+  TextEditingController passwordController = new TextEditingController();
+
   MQTTManager MQTTObj = new MQTTManager();
-  bool clicked = false;
+
+  bool clicked = false, authenticated = true;
 
   Future<bool> authentiacateStudentREST(
       String username, String password) async {
@@ -53,19 +61,10 @@ class LoginScreen extends StatelessWidget {
 
   Future<void> authentiacateStudent(String username, String password) async {
     if (!clicked) {
-      client = await MQTTObj.getClient();
+      LoginScreen.client = await MQTTObj.getClient();
       clicked = true;
     }
-    MQTTObj.listeningToSub(client, "/login/1/sub");
-    // MQTTObj.subscribeToTopic(client, "${TOPIC}/login/1/sub");
-    // MQTTObj.onConnected(client);
-    // var payload = {"username": username, "password": password};
-    // MQTTObj.publishMessage(client, jsonEncode(payload), "${TOPIC}/login_pub");
-
-    // MQTTObj.subscribeToTopic(client, "${TOPIC}/schedule/${globalUserID}/sub");
-    // MQTTObj.subscribeToTopic(client, "${TOPIC}/attendance/${globalUserID}/sub");
-
-    // MQTTObj.listenToSubTopic(client);
+    MQTTObj.listeningToSub(LoginScreen.client, "/login/1/sub");
   }
 
   @override
@@ -118,6 +117,14 @@ class LoginScreen extends StatelessWidget {
                 ),
               ),
             ),
+            Center(
+              child: !authenticated
+                  ? Text(
+                      "Id or password incorrect",
+                      style: TextStyle(color: Colors.red),
+                    )
+                  : null,
+            ),
             SizedBox(
               height: 26,
             ),
@@ -127,23 +134,23 @@ class LoginScreen extends StatelessWidget {
                 String id = studentIDController.text;
                 String password = passwordController.text;
 
-                // authentiacateStudentREST(id, password);
-                // authentiacateStudent(id, password);
                 authentiacateStudentREST(id, password).then((value) {
-                  print("WTF IS THIS VALUE:");
                   print(value);
                   if (value) {
+                    if (mounted)
+                      this.setState(() {
+                        authenticated = true;
+                      });
                     globalUserID = id.toLowerCase();
                     Navigator.pushReplacement(context,
                         MaterialPageRoute(builder: (context) => mainPage()));
+                  } else {
+                    if (mounted)
+                      this.setState(() {
+                        authenticated = false;
+                      });
                   }
                 });
-
-                if (id == 1243374687365487) {
-                  globalUserID = id.toLowerCase();
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => mainPage()));
-                }
               },
               color: kPrimaryColor,
               splash: Colors.grey[700],
