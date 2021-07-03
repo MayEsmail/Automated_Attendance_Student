@@ -16,7 +16,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return (MaterialApp(
       home: Scaffold(
-        appBar: CustomAppBar('', AppBar().preferredSize),
+        appBar: CustomAppBar('', AppBar().preferredSize, false),
         body: LoginScreen(),
       ),
     ));
