@@ -179,6 +179,12 @@ class AttendanceState extends State<Attendance> {
             },
           ),
         ),
+        attendance.length == 0
+            ? Container(
+                child: Center(
+                child: CircularProgressIndicator(),
+              ))
+            : Container(),
       ],
     );
   }

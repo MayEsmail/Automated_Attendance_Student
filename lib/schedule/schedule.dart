@@ -105,75 +105,60 @@ class _ScheduleState extends State<Schedule> {
     print(scheduleMap);
     return Container(
       margin: EdgeInsets.symmetric(vertical: 20),
-      child: (GridView.count(
-          crossAxisCount: 2,
-          childAspectRatio: ((size.width / 2) / 255),
-          scrollDirection: Axis.vertical,
-          children: List.generate(scheduleMap.keys.length, (index) {
-            var day = scheduleMap[scheduleSortedKeys[index]];
-            var sortedKeys = day.keys.toList()..sort();
-            var course;
-            return Container(
-              margin: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                border: Border.all(color: kPrimaryColor),
-              ),
-              child: ListView(
-                padding: const EdgeInsets.all(8),
-                children: <Widget>[
-                  Center(
-                      child: Text(
-                    days[DateTime.parse(scheduleSortedKeys[index].toString())
-                                    .weekday -
-                                1]
-                            .toString() +
-                        " " +
-                        scheduleSortedKeys[index].toString(),
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  )),
-                  SizedBox(
-                    height: 5,
+      child: (scheduleMap.keys.length == 0
+          ? Padding(
+              padding: const EdgeInsets.all(40.0),
+              child: Container(
+                  child: Center(
+                child: CircularProgressIndicator(),
+              )),
+            )
+          : GridView.count(
+              crossAxisCount: 2,
+              childAspectRatio: ((size.width / 2) / 255),
+              scrollDirection: Axis.vertical,
+              children: List.generate(scheduleMap.keys.length, (index) {
+                var day = scheduleMap[scheduleSortedKeys[index]];
+                var sortedKeys = day.keys.toList()..sort();
+                var course;
+                return Container(
+                  margin: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: kPrimaryColor),
                   ),
-                  for (int i = 0; i < sortedKeys.length; i++)
-                    Lecture(
-                      lectureName: Text(
-                        day[sortedKeys[i]]["course"] +
-                            ' [${day[sortedKeys[i]]["from"]} - ${day[sortedKeys[i]]["to"]}]',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
+                  child: ListView(
+                    padding: const EdgeInsets.all(8),
+                    children: <Widget>[
+                      Center(
+                          child: Text(
+                        days[DateTime.parse(scheduleSortedKeys[index]
+                                            .toString())
+                                        .weekday -
+                                    1]
+                                .toString() +
+                            " " +
+                            scheduleSortedKeys[index].toString(),
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      )),
+                      SizedBox(
+                        height: 5,
                       ),
-                    ),
-                  //   day.keys.length > 0
-                  //       ? Lecture(
-                  //           lectureName: Text(
-                  //             day[sortedKeys[1]]["course"],
-                  //             style: TextStyle(
-                  //               color: Colors.white,
-                  //               fontSize: 16,
-                  //               fontWeight: FontWeight.w600,
-                  //             ),
-                  //           ),
-                  //         )
-                  //       : Container(),
-                  //   day.keys.length > 1
-                  //       ? Lecture(
-                  //           lectureName: Text(
-                  //             day[sortedKeys[2]]["course"],
-                  //             style: TextStyle(
-                  //               color: Colors.white,
-                  //               fontSize: 16,
-                  //               fontWeight: FontWeight.w600,
-                  //             ),
-                  //           ),
-                  //         )
-                  //       : Container(),
-                ],
-              ),
-            );
-          }))),
+                      for (int i = 0; i < sortedKeys.length; i++)
+                        Lecture(
+                          lectureName: Text(
+                            day[sortedKeys[i]]["course"] +
+                                ' [${day[sortedKeys[i]]["from"]} - ${day[sortedKeys[i]]["to"]}]',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                );
+              }))),
     );
   }
 }
